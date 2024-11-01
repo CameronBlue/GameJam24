@@ -5,7 +5,7 @@ using Random = UnityEngine.Random;
 
 public class Fluid : MonoBehaviour
 {
-    private const float c_attractiveForce = 0.01f;
+    private const float c_attractiveForce = 0.001f;
     private const float c_repulsiveForce = 0.000001f;
     
     public FluidPixel m_fluidPixelPrefab;
@@ -17,7 +17,8 @@ public class Fluid : MonoBehaviour
         for (int i = 0; i < _pixelCount; ++i)
         {
             _force = _force.Rotate(Random.Range(-2f, 2f));
-            var fluidPixel = Instantiate(m_fluidPixelPrefab, transform.position + (_force.normalized * 2).AddZ(), Quaternion.identity);
+            _force *= Random.Range(0.98f, 1.02f);
+            var fluidPixel = Instantiate(m_fluidPixelPrefab, transform.position, Quaternion.identity);
             fluidPixel.m_rb.AddForce(_force);
             
             m_fluidPixels.Add(fluidPixel);
@@ -28,6 +29,11 @@ public class Fluid : MonoBehaviour
     public void Remove(FluidPixel _pixel)
     {
         m_fluidPixels.Remove(_pixel);
+        if (m_fluidPixels.Count == 0)
+        {
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+        }
     }
 
     private void FixedUpdate()
