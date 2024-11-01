@@ -90,9 +90,12 @@ public class GridHandler : MonoBehaviour
 
     private void Start()
     {
-        m_image.localScale = new Vector3(c_ImageScale, c_ImageScale, 1f);
         m_levelWidth = m_level.width;
         m_levelHeight = m_level.height;
+        m_map.width = m_levelWidth;
+        m_map.height = m_levelHeight;
+        m_image.localScale = new Vector3(c_ImageScale, c_ImageScale, 1f);
+        m_image.sizeDelta = new Vector2(m_levelWidth, m_levelHeight);
         m_textureHolder = new Texture2D(m_levelWidth, m_levelHeight, TextureFormat.RGBA32, false);
         
         m_cellPropertiesNative = new(m_cellProperties.Count, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
@@ -176,7 +179,7 @@ public class GridHandler : MonoBehaviour
             var point = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
             var index = GetCell(point, Mathf.RoundToInt);
             var cell = m_cells[index.x + index.y * m_levelWidth];
-            Debug.LogError($"Clicked on {index} which is {cell.m_type} with {cell.m_amount}");
+            Debug.LogError($"Clicked on {index} which is {cell.m_type} with {cell.m_amount}. Is registered: {m_fluidCells.Contains(index)}");
         }
     }
 
@@ -198,11 +201,18 @@ public class GridHandler : MonoBehaviour
         {
             var cell = m_cells[_index];
             var colour = m_cellProperties[(int)cell.m_type].colour;
+            if (float.IsNaN(cell.m_amount))
+                colour = Color.magenta;
+            else if (float.IsInfinity(cell.m_amount))
+                colour = Color.cyan;
+            else if (cell.m_amount < 0f)
+                colour = Color.green;
+            
             
             m_texture[4 * _index] = colour.r;
             m_texture[4 * _index + 1] = colour.g;
             m_texture[4 * _index + 2] = colour.b;
-            m_texture[4 * _index + 3] = (byte)((cell.m_type == Cell.Type.Empty ? 0f : 1f) * colour.a);
+            m_texture[4 * _index + 3] = (byte)(Mathf.Clamp01(cell.m_amount) * colour.a);
         }
 
         public void SetTexture(Texture2D _texture)
@@ -386,12 +396,14 @@ public class GridHandler : MonoBehaviour
     private void FixedUpdate()
     {
         UpdateFluids();
+        //Debug.LogError($"Fluid count: {m_fluidCells.Count}");
     }
 
     private void UpdateFluids()
     {
         var job = new UpdateFluidsJob(m_cells, m_cellPropertiesNative, m_fluidCells, m_levelWidth, m_levelHeight);
         job.Schedule().Complete();
+        job.Dispose();
     }
     
     [BurstCompile]
@@ -431,75 +443,68 @@ public class GridHandler : MonoBehaviour
         private void UpdateCell(ref Cell _cell, int2 _index)
         {
             var fullness = _cell.m_amount;
-            
+
             var belowIndex = _index + new int2(0, -1);
             var belowValid = belowIndex.y >= 0;
             var belowFullness = float.PositiveInfinity;
             if (belowValid)
                 belowFullness = CheckFullness(_cell.m_type, belowIndex);
-            
+
             var leftIndex = _index + new int2(-1, 0);
             var leftValid = leftIndex.x >= 0;
             var leftFullness = float.PositiveInfinity;
             if (leftValid)
                 leftFullness = CheckFullness(_cell.m_type, leftIndex);
-            
+
             var rightIndex = _index + new int2(1, 0);
             var rightValid = rightIndex.x < m_width;
             var rightFullness = float.PositiveInfinity;
             if (rightValid)
                 rightFullness = CheckFullness(_cell.m_type, rightIndex);
-            
+
             var aboveIndex = _index + new int2(0, 1);
             var aboveValid = aboveIndex.y < m_height;
             var aboveFullness = float.PositiveInfinity;
             if (aboveValid)
                 aboveFullness = CheckFullness(_cell.m_type, aboveIndex);
 
-            var belowAcceptance = fullness - belowFullness;
+            const float minimumFlowThreshold = 0.1f;
+            const float lateralDampeningFactor = 0.8f;
+            const float upwardDampeningFactor = 0.5f;
+
+            var belowAcceptance = fullness - belowFullness + 1f;
+            belowAcceptance = math.min(fullness, belowAcceptance);
             if (belowAcceptance > 0f)
             {
-                AddToCell(_cell, belowIndex, math.min(fullness, belowAcceptance));
+                AddToCell(_cell, belowIndex, belowAcceptance);
                 fullness -= belowAcceptance;
             }
-            
-            var leftAcceptance = fullness - leftFullness;
-            var rightAcceptance = fullness - rightFullness;
-            if (leftAcceptance > 0f)
+
+
+            var leftAcceptance = math.max(0f, (fullness - leftFullness) * lateralDampeningFactor);
+            var rightAcceptance = math.max(0f, (fullness - rightFullness) * lateralDampeningFactor);
+            var lateralAcceptance = leftAcceptance + rightAcceptance;
+            var transferTotal = math.min(fullness, lateralAcceptance);
+            if (transferTotal > minimumFlowThreshold)
             {
-                if (rightAcceptance > 0f)
-                {
-                    var acceptances = new float2(leftAcceptance, rightAcceptance);
-                    var tot = math.min(fullness, leftAcceptance + rightAcceptance);
-                    acceptances = math.normalize(acceptances) * tot;
-                    AddToCell(_cell, leftIndex, acceptances.x);
-                    AddToCell(_cell, rightIndex, acceptances.y);
-                    fullness -= tot;
-                }
-                else
-                {
-                    AddToCell(_cell, leftIndex, math.min(fullness, leftAcceptance));
-                    fullness -= leftAcceptance;
-                }
+                AddToCell(_cell, leftIndex, leftAcceptance * transferTotal / lateralAcceptance);
+                AddToCell(_cell, rightIndex, rightAcceptance * transferTotal / lateralAcceptance);
+                fullness -= transferTotal;
             }
-            else if (rightAcceptance > 0f)
+
+            var aboveAcceptance = fullness - aboveFullness - 1f;
+            aboveAcceptance = math.min(fullness, aboveAcceptance) * upwardDampeningFactor;
+            if (aboveAcceptance > minimumFlowThreshold)
             {
-                AddToCell(_cell, rightIndex, math.min(fullness, rightAcceptance));
-                fullness -= rightAcceptance;
-            }
-            
-            var aboveAcceptance = fullness - aboveFullness;
-            if (aboveAcceptance > 0f)
-            {
-                AddToCell(_cell, aboveIndex, math.min(fullness, aboveAcceptance));
+                AddToCell(_cell, aboveIndex, aboveAcceptance);
                 fullness -= aboveAcceptance;
             }
 
             _cell.m_amount = fullness;
-            if (fullness == 0)
+            if (fullness <= 0)
                 _cell.m_type = Cell.Type.Empty;
         }
-        
+
         private float CheckFullness(Cell.Type _type, int2 _index)
         {
             var other = m_cells[_index.x + _index.y * m_width];
@@ -521,6 +526,11 @@ public class GridHandler : MonoBehaviour
             if (isLiquid && !wasLiquid)
                 m_fluidCells.Add(_index);
             m_cells[_index.x + _index.y * m_width] = other;
+        }
+        
+        public void Dispose()
+        {
+            
         }
     }
 

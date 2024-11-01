@@ -156,8 +156,8 @@ Camera:
   m_GameObject: {fileID: 87336033}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.16981131, g: 0.16981131, b: 0.16981131, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -236,7 +236,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -370,6 +370,7 @@ GameObject:
   - component: {fileID: 170300167}
   - component: {fileID: 170300166}
   - component: {fileID: 170300168}
+  - component: {fileID: 170300169}
   m_Layer: 3
   m_Name: Character
   m_TagString: Untagged
@@ -422,7 +423,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6415094, g: 0.6415094, b: 0.6415094, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -477,7 +478,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -532,9 +533,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6176d3f6ab38df45b595e873ee87a26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fluidPrefab: {fileID: 8699103085411899179, guid: 0289d016e14f6ba4f9d1b547e82c3f6a, type: 3}
+  mPotionPrefab: {fileID: 8699103085411899179, guid: 0289d016e14f6ba4f9d1b547e82c3f6a, type: 3}
   m_rb: {fileID: 170300167}
   m_coll: {fileID: 170300166}
+  m_customColl: {fileID: 170300169}
+--- !u!114 &170300169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 170300163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6da45ab7f0abb245861adb5104842dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_coll: {fileID: 170300166}
+  m_rb: {fileID: 170300167}
 --- !u!1 &863852553
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 9201683472301224692}
   - component: {fileID: 822559001974086525}
   - component: {fileID: 4016994076967166341}
+  - component: {fileID: 4555908967668034026}
   m_Layer: 4
   m_Name: PixelFluid
   m_TagString: Untagged
@@ -105,6 +106,7 @@ MonoBehaviour:
   m_rb: {fileID: 4016994076967166341}
   m_coll: {fileID: 822559001974086525}
   m_rend: {fileID: 6925618681206373023}
+  m_customColl: {fileID: 4555908967668034026}
 --- !u!61 &822559001974086525
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -163,7 +165,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 0.01
+  m_Mass: 1
   m_LinearDamping: 0.2
   m_AngularDamping: 0
   m_GravityScale: 1
@@ -178,3 +180,17 @@ Rigidbody2D:
   m_SleepingMode: 0
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &4555908967668034026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2160200092520621430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6da45ab7f0abb245861adb5104842dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_coll: {fileID: 822559001974086525}
+  m_rb: {fileID: 4016994076967166341}
