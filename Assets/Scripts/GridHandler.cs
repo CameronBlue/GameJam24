@@ -9,6 +9,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 using Random = Unity.Mathematics.Random;
 
 public class GridHandler : MonoBehaviour
@@ -74,9 +75,8 @@ public class GridHandler : MonoBehaviour
     private NativeArray<CellProperties> m_cellPropertiesNative;
 
     [SerializeField] private RectTransform m_image;
-    [SerializeField] private RenderTexture m_map;
     [SerializeField] private Texture2D m_level;
-    private Texture2D m_textureHolder;
+    [SerializeField] private Texture2D m_textureHolder;
     private int m_levelWidth;
     private int m_levelHeight;
     
@@ -92,12 +92,14 @@ public class GridHandler : MonoBehaviour
     {
         m_levelWidth = m_level.width;
         m_levelHeight = m_level.height;
-        m_map.width = m_levelWidth;
-        m_map.height = m_levelHeight;
         m_image.localScale = new Vector3(c_ImageScale, c_ImageScale, 1f);
         m_image.sizeDelta = new Vector2(m_levelWidth, m_levelHeight);
-        m_textureHolder = new Texture2D(m_levelWidth, m_levelHeight, TextureFormat.RGBA32, false);
-        
+        m_textureHolder = new Texture2D(m_levelWidth, m_levelHeight, TextureFormat.RGBA32, 0, true)
+        {
+            filterMode = FilterMode.Point
+        };
+        m_image.GetComponent<RawImage>().material.SetTexture("_MainTex", m_textureHolder);
+
         m_cellPropertiesNative = new(m_cellProperties.Count, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         for (int i = 0; i < m_cellProperties.Count; ++i) //I will optimise if needed but should be a short array
             m_cellPropertiesNative[i] = m_cellProperties[i];
@@ -169,10 +171,9 @@ public class GridHandler : MonoBehaviour
 
     private void Update()
     {
-        var job = new RenderJob(m_cells, m_cellPropertiesNative, m_levelWidth * m_levelHeight);
+        var job = new RenderJob(m_cells, m_cellPropertiesNative, m_levelWidth, m_levelHeight);
         job.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
         job.SetTexture(m_textureHolder);
-        Graphics.Blit(m_textureHolder, m_map);
 
         if (Input.GetMouseButtonDown(1))
         {
@@ -188,31 +189,67 @@ public class GridHandler : MonoBehaviour
     {
         [ReadOnly] private NativeArray<Cell> m_cells;
         [ReadOnly] private NativeArray<CellProperties> m_cellProperties;
+        [ReadOnly] private int m_width, m_height;
         [NativeDisableParallelForRestriction] private NativeArray<byte> m_texture;
 
-        public RenderJob(NativeArray<Cell> _cells, NativeArray<CellProperties> _properties, int _length)
+        public RenderJob(NativeArray<Cell> _cells, NativeArray<CellProperties> _properties, int _width, int _height)
         {
             m_cells = _cells;
             m_cellProperties = _properties;
-            m_texture = new NativeArray<byte>(_length * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            m_texture = new NativeArray<byte>(_width * _height * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            m_width = _width;
+            m_height = _height;
         }
         
         public void Execute(int _index)
         {
             var cell = m_cells[_index];
-            var colour = m_cellProperties[(int)cell.m_type].colour;
-            if (float.IsNaN(cell.m_amount))
-                colour = Color.magenta;
-            else if (float.IsInfinity(cell.m_amount))
-                colour = Color.cyan;
-            else if (cell.m_amount < 0f)
-                colour = Color.green;
+            var type = (int)cell.m_type;
+            var properties = m_cellProperties[type];
             
+            m_texture[4 * _index] = (byte)type;
+            m_texture[4 * _index + 1] = GetNeighbourStatus(cell.m_type, _index);
+            m_texture[4 * _index + 2] = (byte)(255 * properties.viscosity);
+            m_texture[4 * _index + 3] = (byte)(Mathf.Clamp01(cell.m_amount) * properties.colour.a);
+        }
+
+        private byte GetNeighbourStatus(Cell.Type _type, int _index, bool _matchType = false)
+        {
+            int x = _index % m_width;
+            int y = _index / m_width;
+
+            var left = new int2(x - 1, y);
+            var right = new int2(x + 1, y);
+            var up = new int2(x, y + 1);
+            var down = new int2(x, y - 1);
             
-            m_texture[4 * _index] = colour.r;
-            m_texture[4 * _index + 1] = colour.g;
-            m_texture[4 * _index + 2] = colour.b;
-            m_texture[4 * _index + 3] = (byte)(Mathf.Clamp01(cell.m_amount) * colour.a);
+            byte status = 0;
+            if (left.x >= 0)
+            {
+                var leftCell = m_cells[left.x + left.y * m_width];
+                if (_matchType ? leftCell.m_type == _type : leftCell.m_type != Cell.Type.Empty)
+                    status |= 1 << 3;
+            }
+            if (right.x < m_width)
+            {
+                var rightCell = m_cells[right.x + right.y * m_width];
+                if (_matchType ? rightCell.m_type == _type : rightCell.m_type != Cell.Type.Empty)
+                    status |= 1 << 2;
+            }
+            if (up.y < m_height)
+            {
+                var upCell = m_cells[up.x + up.y * m_width];
+                if (_matchType ? upCell.m_type == _type : upCell.m_type != Cell.Type.Empty)
+                    status |= 1 << 1;
+            }
+            if (down.y >= 0)
+            {
+                var downCell = m_cells[down.x + down.y * m_width];
+                if (_matchType ? downCell.m_type == _type : downCell.m_type != Cell.Type.Empty)
+                    status |= 1 << 0;
+            }
+
+            return status;
         }
 
         public void SetTexture(Texture2D _texture)
