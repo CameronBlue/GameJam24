@@ -17,6 +17,9 @@ public class CustomCollider : MonoBehaviour
     public bool OnWall => (m_groundedState & 6) > 0;
     public bool OnRightWall => (m_groundedState & 2) == 2;
     public bool OnLeftWall => (m_groundedState & 4) == 4;
+    public bool CanJump => OnGround;
+    public bool CanWallJumpLeft => OnLeftWall && !OnGround && !OnRightWall;
+    public bool CanWallJumpRight => OnRightWall && !OnGround && !OnLeftWall;
 
     private void LateUpdate()
     {
@@ -53,17 +56,13 @@ public class CustomCollider : MonoBehaviour
             if (viscosity < 1f)
                 continue;
             
-            int xRel = (bounds.min.x >= blockMax.x) ? 1 : ((bounds.max.x <= blockMin.x) ? -1 : 0);
-            int yRel = (bounds.min.y >= blockMax.y) ? 1 : ((bounds.max.y <= blockMin.y) ? -1 : 0);
-
+            var (xRel, yRel) = GetRelative(bounds, blockMin, blockMax);
             if (xRel != 0 || yRel != 0)
                 continue;
             
-            int prevXRel = (prevBounds.min.x >= blockMax.x) ? 1 : ((prevBounds.max.x <= blockMin.x) ? -1 : 0);
-            int prevYRel = (prevBounds.min.y >= blockMax.y) ? 1 : ((prevBounds.max.y <= blockMin.y) ? -1 : 0);
+            var (prevXRel, prevYRel) = GetRelative(prevBounds, blockMin, blockMax);
             bool xChanged = prevXRel != 0;
             bool yChanged = prevYRel != 0;
-
             if (!xChanged && !yChanged)
             {
                 Debug.LogError("Stuck in something");
@@ -110,15 +109,13 @@ public class CustomCollider : MonoBehaviour
             var blockMin = block - extent;
             var blockMax = block + extent;
             
-            int xRel = (bounds.min.x >= blockMax.x) ? 1 : ((bounds.max.x <= blockMin.x) ? -1 : 0);
-            int yRel = (bounds.min.y >= blockMax.y) ? 1 : ((bounds.max.y <= blockMin.y) ? -1 : 0);
-
+            var (xRel, yRel) = GetRelative(bounds, blockMin, blockMax);
             if (xRel != 0 || yRel != 0)
                 continue;
 
+            var (prevXRel, prevYRel) = GetRelative(prevBounds, blockMin, blockMax);
             if (velocity.y * velocity.y > velocity.x * velocity.x)
             {
-                int prevYRel = (prevBounds.min.y > blockMax.y) ? 1 : ((prevBounds.max.y < blockMin.y) ? -1 : 0);
                 if (prevYRel == 1) //Above
                 {
                     pos.y = blockMax.y + bounds.extents.y;
@@ -130,21 +127,21 @@ public class CustomCollider : MonoBehaviour
                     pos.y = blockMin.y - bounds.extents.y;
                     velocity.y = Mathf.Min(0f, velocity.y);
                 }
-                bounds.center = pos;
-                continue;
             }
-            int prevXRel = (prevBounds.min.x > blockMax.x) ? 1 : ((prevBounds.max.x < blockMin.x) ? -1 : 0);
-            if (prevXRel == 1) //Right
+            else
             {
-                pos.x = blockMax.x + bounds.extents.x;
-                velocity.x = Mathf.Max(0f, velocity.x);
-                m_groundedState |= 2;
-            }
-            else //Left
-            {
-                pos.x = blockMin.x - bounds.extents.x;
-                velocity.x = Mathf.Min(0f, velocity.x);
-                m_groundedState |= 4;
+                if (prevXRel == 1) //Right
+                {
+                    pos.x = blockMax.x + bounds.extents.x;
+                    velocity.x = Mathf.Max(0f, velocity.x);
+                    m_groundedState |= 2;
+                }
+                else //Left
+                {
+                    pos.x = blockMin.x - bounds.extents.x;
+                    velocity.x = Mathf.Min(0f, velocity.x);
+                    m_groundedState |= 4;
+                }
             }
             bounds.center = pos;
         }
@@ -154,28 +151,10 @@ public class CustomCollider : MonoBehaviour
         prevBounds = bounds;
     }
 
-    private Vector2 Overlap(Bounds _a, Bounds _b)
+    private (int, int) GetRelative(Bounds _bounds, Vector2 _min, Vector2 _max)
     {
-        return Overlap(_a, _b, Vector2.zero);
-    }
-    
-    private Vector2 Overlap(Bounds _a, Bounds _b, Vector2 _offset)
-    {
-        var minMax = Vector2.Min((Vector2)_a.max + _offset, _b.max);
-        var maxMin = Vector2.Max((Vector2)_a.min + _offset, _b.min);
-        return Vector2.Max(Vector2.zero, minMax - maxMin);
-    }
-
-    private float Unoverlap(Bounds _a, Bounds _b, Vector2 _velocity)
-    {
-        var toMoveX = _velocity.x > 0f ? (_a.max.x - _b.min.x) : (_a.min.x - _b.max.x);
-        var toMoveY = _velocity.y > 0f ? (_a.max.y - _b.min.y) : (_a.min.y - _b.max.y);
-        
-        if (_velocity.x == 0f)
-            return toMoveY / _velocity.y;
-        if (_velocity.y == 0f)
-            return toMoveX / _velocity.x;
-        
-        return Mathf.Min(toMoveX / _velocity.x, toMoveY / _velocity.y);
+        int x = (_bounds.min.x >= _max.x) ? 1 : ((_bounds.max.x <= _min.x) ? -1 : 0);
+        int y = (_bounds.min.y >= _max.y) ? 1 : ((_bounds.max.y <= _min.y) ? -1 : 0);
+        return (x, y);
     }
 }
