@@ -56,7 +56,15 @@ Shader "Custom/GridImageShader"
 
             float2 uv_offset(float _f)
             {
-                return float2(_SinTime.y, _CosTime.y * 0.5) * _f;
+                return float2(_SinTime.y, _CosTime.y * 0.5) * _f * _f;
+            }
+
+            float shimmer(float2 uv)
+            {
+                float2 scaledUV = uv * 100;
+                float positionalNoise = sin(scaledUV.x) + sin(scaledUV.y);
+                float shimmer = 0.5 + 0.5 * sin(_Time.y * (2 + positionalNoise * 0.25));
+                return 5 * shimmer;
             }
 
             fixed4 frag (v2f i) : SV_Target
@@ -66,8 +74,7 @@ Shader "Custom/GridImageShader"
                 int neighbours = (c.y * 255.0); //0-15
                 float viscosity = c.z;
 
-                float2 uvOffset = uv_offset(1 - viscosity);
-                float2 uv = (uvOffset + (i.uv * _MainTex_TexelSize.zw / _TextureTiling.zw)) % 1;
+                float2 uv = (uv_offset(1 - viscosity) + i.uv * _MainTex_TexelSize.zw / _TextureTiling.zw) % 1;
                 uv += float2(3 - (neighbours >> 2),  neighbours & 3);
                 uv *= 0.25;
                 
@@ -83,7 +90,8 @@ Shader "Custom/GridImageShader"
                 else
                     finalCol = fixed4(c.rgb, 1);
                 
-                finalCol.a *= c.a;                
+                finalCol.a *= c.a;
+                finalCol.xyz *= 1 + (1 - viscosity);
                 return finalCol;
             }
             ENDCG

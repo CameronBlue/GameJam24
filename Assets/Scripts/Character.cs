@@ -8,7 +8,6 @@ public class Character : MonoBehaviour
     private const float c_CameraTightness = 0.1f;
     private const float c_PlayerSpeed = 500f;
     private const float c_JumpImpulse = 1000f;
-    private const float c_GroundNormalThreshold = 0.8f;
     
     [FormerlySerializedAs("m_fluidPrefab")] public Potion mPotionPrefab;
     
@@ -24,6 +23,7 @@ public class Character : MonoBehaviour
     
     private void Start()
     {
+        transform.position = GridHandler.Me.GetSpawnPoint();
         m_smoothedPos = transform.position;
         
         m_mainCam = Camera.main;
