@@ -31,7 +31,7 @@ public class Character : MonoBehaviour
 
     private void Update()
     {
-        UpdateMovement();
+        //UpdateMovement();
         UpdateGun();
     }
 
