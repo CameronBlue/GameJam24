@@ -355,8 +355,8 @@ MonoBehaviour:
     viscosity: 1
     flammability: 0
   m_image: {fileID: 1952815454}
-  m_map: {fileID: 8400000, guid: cda5c389b34b70945b7265db16a4ba03, type: 2}
   m_level: {fileID: 2800000, guid: 9484ddd525518264b8d2972870061dad, type: 3}
+  m_textureHolder: {fileID: 0}
 --- !u!1 &170300163
 GameObject:
   m_ObjectHideFlags: 0
@@ -371,6 +371,7 @@ GameObject:
   - component: {fileID: 170300166}
   - component: {fileID: 170300168}
   - component: {fileID: 170300169}
+  - component: {fileID: 170300170}
   m_Layer: 3
   m_Name: Character
   m_TagString: Untagged
@@ -551,6 +552,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_coll: {fileID: 170300166}
   m_rb: {fileID: 170300167}
+--- !u!114 &170300170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 170300163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4eaa99716ae149e48bcae0066c7bf9ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stats: {fileID: 11400000, guid: 4e20e2141e086624eab07a8260cc9e7e, type: 2}
 --- !u!1 &863852553
 GameObject:
   m_ObjectHideFlags: 0
