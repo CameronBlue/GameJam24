@@ -24,12 +24,13 @@ public class CustomCollider : MonoBehaviour
     private void LateUpdate()
     {
         m_groundedState = 0;
+        var result = GridHandler.Me.CheckCells(m_coll.bounds);
+        HandleCollisions(result);
     }
 
     private void FixedUpdate()
     {
         m_groundedState = 0;
-        
         var result = GridHandler.Me.CheckCells(m_coll.bounds);
         HandleCollisions(result);
     }

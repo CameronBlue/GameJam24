@@ -5,11 +5,11 @@ using UnityEngine.Serialization;
 
 public class Character : MonoBehaviour
 {
-    private const float c_CameraTightness = 0.1f;
+    private const float c_CameraTightness = 1f;
     private const float c_PlayerSpeed = 500f;
     private const float c_JumpImpulse = 1000f;
     
-    [FormerlySerializedAs("m_fluidPrefab")] public Potion mPotionPrefab;
+    public Potion m_PotionPrefab;
     
     private Vector3 m_smoothedPos = Vector3.zero;
     private Camera m_mainCam;
@@ -72,8 +72,8 @@ public class Character : MonoBehaviour
     {
         var startPos = (Vector2)m_coll.bounds.center + Vector2.up * 0.5f;
         var force = Utility.GetForceForPosition(startPos, _target, 10f);
-        var fluid = Instantiate(mPotionPrefab, startPos, Quaternion.identity);
-        fluid.Init(force, 20, GridHandler.Cell.Type.Water);
+        var potion = Instantiate(m_PotionPrefab, startPos, Quaternion.identity);
+        potion.Init(force, 20, GridHandler.Cell.Type.Acid);
     }
 
     private Vector3 m_lastPos;

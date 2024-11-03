@@ -9,6 +9,11 @@ Shader "Custom/GridImageShader"
         _Tex1 ("Texture 1", 2D) = "white" {}
         _Tex2 ("Texture 2", 2D) = "white" {}
         _Tex3 ("Texture 3", 2D) = "white" {}
+        _Tex4 ("Texture 4", 2D) = "white" {}
+        _Tex5 ("Texture 5", 2D) = "white" {}
+        _Tex6 ("Texture 6", 2D) = "white" {}
+        _Tex7 ("Texture 7", 2D) = "white" {}
+        _Tex8 ("Texture 8", 2D) = "white" {}
     }
     SubShader
     {
@@ -33,6 +38,11 @@ Shader "Custom/GridImageShader"
             sampler2D _Tex1;
             sampler2D _Tex2;
             sampler2D _Tex3;
+            sampler2D _Tex4;
+            sampler2D _Tex5;
+            sampler2D _Tex6;
+            sampler2D _Tex7;
+            sampler2D _Tex8;
 
             struct appdata
             {
@@ -78,21 +88,31 @@ Shader "Custom/GridImageShader"
                 uv += float2(3 - (neighbours >> 2),  neighbours & 3);
                 uv *= 0.25;
                 
-                fixed4 finalCol;
+                fixed4 final_col;
                 if (type == 1)
-                    finalCol = tex2D(_Tex0, uv);
+                    final_col = tex2D(_Tex0, uv);
                 else if (type == 2)
-                    finalCol = tex2D(_Tex1, uv);
+                    final_col = tex2D(_Tex1, uv);
                 else if (type == 3)
-                    finalCol = tex2D(_Tex2, uv);
+                    final_col = tex2D(_Tex2, uv);
                 else if (type == 4)
-                    finalCol = tex2D(_Tex3, uv);
+                    final_col = tex2D(_Tex3, uv);
+                else if (type == 5)
+                    final_col = tex2D(_Tex4, uv);
+                else if (type == 6)
+                    final_col = tex2D(_Tex5, uv);
+                else if (type == 7)
+                    final_col = tex2D(_Tex6, uv);
+                else if (type == 8)
+                    final_col = tex2D(_Tex7, uv);
+                else if (type == 9)
+                    final_col = tex2D(_Tex8, uv);
                 else
-                    finalCol = fixed4(c.rgb, 1);
+                    final_col = fixed4(c.rgb, 1);
                 
-                finalCol.a *= c.a;
-                finalCol.xyz *= 1 + (1 - viscosity);
-                return finalCol;
+                final_col.a *= c.a;
+                final_col.xyz *= 1 + (1 - viscosity);
+                return final_col;
             }
             ENDCG
         }

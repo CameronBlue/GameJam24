@@ -50,6 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_fluidPixelPrefab: {fileID: 9201683472301224692, guid: 35914da8dac885b42ab1cb9b5dd79888, type: 3}
   m_customColl: {fileID: 2101680091732044099}
+  m_coll: {fileID: 6572233159925188133}
   m_rb: {fileID: 6457517956229087928}
 --- !u!50 &6457517956229087928
 Rigidbody2D:

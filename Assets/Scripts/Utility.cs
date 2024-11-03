@@ -34,4 +34,9 @@ public static class Utility
     {
         return new(_v2.x, _v2.y, _z);
     }
+    
+    public static Vector2 RandomInsideBounds(Bounds _bounds)
+    {
+        return new Vector2(Random.Range(_bounds.min.x, _bounds.max.x), Random.Range(_bounds.min.y, _bounds.max.y));
+    }
 }

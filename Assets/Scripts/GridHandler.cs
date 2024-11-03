@@ -22,7 +22,7 @@ public class GridHandler : MonoBehaviour
     
     public struct Cell
     {
-        private const float c_velocityReduction = 0.9f;
+        private const float c_velocityReduction = 0.995f;
         public enum Type
         {
             Empty,
@@ -59,7 +59,7 @@ public class GridHandler : MonoBehaviour
         public Cell Add(Type _type, float _amount, float2 _from)
         {
             var newAmount = (m_type == Type.Empty ? 0 : m_amount) + _amount;
-            var newVelocity = m_velocity * c_velocityReduction - _amount * _from;
+            var newVelocity = m_velocity - _amount * _from;
             return new Cell {m_type = _type, m_amount = newAmount, m_velocity = newVelocity};
         }
 
@@ -67,7 +67,7 @@ public class GridHandler : MonoBehaviour
         {
             var newAmount = m_amount - _amount;
             var newType = newAmount <= 0f ? Type.Empty : m_type;
-            var newVelocity = m_velocity * c_velocityReduction + _amount * _to;
+            var newVelocity = m_velocity + _amount * _to;
             return new Cell {m_type = newType, m_amount = newAmount, m_velocity = newVelocity}; 
         }
 
@@ -81,8 +81,10 @@ public class GridHandler : MonoBehaviour
     [Serializable] public struct CellProperties 
     { 
         public Cell.Type type; //Only here for inspector
-        public Color32 colour;
+        public Color32 colour; 
         public float viscosity;
+        public float corrosivity;
+        public float corrodability;
         public float flammability;
     }
     [SerializeField] private List<CellProperties> m_cellProperties;
@@ -248,11 +250,12 @@ public class GridHandler : MonoBehaviour
             var cell = m_cells[_index];
             var type = (int)cell.m_type;
             var properties = m_cellProperties[type];
+            var opacity = properties.viscosity > 1f ? 1f : math.min(1f, cell.m_amount);
             
             m_texture[4 * _index] = (byte)type;
             m_texture[4 * _index + 1] = GetNeighbourStatus(cell.m_type, _index);
             m_texture[4 * _index + 2] = (byte)(255 * properties.viscosity);
-            m_texture[4 * _index + 3] = (byte)(Mathf.Clamp01(cell.m_amount) * properties.colour.a);
+            m_texture[4 * _index + 3] = (byte)(opacity * properties.colour.a);
         }
 
         private byte GetNeighbourStatus(Cell.Type _type, int _index, bool _matchType = false)
@@ -365,9 +368,9 @@ public class GridHandler : MonoBehaviour
                 {
                     var index = x + y * m_width;
                     var cell = m_cells[index];
-                    var viscosity = m_cellProperties[(int)cell.m_type].viscosity * math.min(1f, cell.m_amount);
+                    var viscosity = m_cellProperties[(int)cell.m_type].viscosity;
 
-                    if (viscosity <= 0.001f)
+                    if (viscosity <= 0f)
                         continue;
                     
                     m_output.Add(new(x, y, viscosity));
@@ -487,13 +490,13 @@ public class GridHandler : MonoBehaviour
     {
         const float c_MinimumFlowThreshold = 0.01f;
         const float c_LateralDampeningFactor = 0.5f;
-        const float c_VelocityPull = 0f;
+        const float c_VelocityPull = 0.01f;
         
         private NativeArray<Cell> m_cells;
         private NativeHashSet<int2> m_fluidCells;
         [ReadOnly] private NativeArray<CellProperties> m_cellProperties;
         [ReadOnly] private int m_width, m_height;
-        [ReadOnly] private Random m_random;
+        [ReadOnly] private float m_fixedDeltaTime;
 
         public UpdateFluidsJob(NativeArray<Cell> _cells, NativeArray<CellProperties> _properties, NativeHashSet<int2> _fluidCells, int _width, int _height)
         {
@@ -502,10 +505,10 @@ public class GridHandler : MonoBehaviour
             m_fluidCells = _fluidCells;
             m_width = _width;
             m_height = _height;
-            m_random = Random.CreateFromIndex((uint)UnityEngine.Random.Range(0u, uint.MaxValue));
+            m_fixedDeltaTime = Time.fixedDeltaTime;
         }
 
-        private const int c_Cycles = 1;
+        private const int c_Cycles = 5;
         public void Execute()
         {
             for (int cycle = 0; cycle < c_Cycles; ++cycle)
@@ -532,9 +535,52 @@ public class GridHandler : MonoBehaviour
             var aboveIndex = _index + new int2(0, 1);
             var aboveValid = aboveIndex.y < m_height;
 
+            
+            UpdateCorrosion(_index, belowValid, belowIndex, leftValid, leftIndex, rightValid, rightIndex, aboveValid, aboveIndex);
+
             UpdateMainDir(_index, belowValid, belowIndex, new float2(0f, -1f));
             UpdateAuxilliaryDirs(_index, leftValid, leftIndex, new float2(-1f, 0f), rightValid, rightIndex, new float2(1f, 0f));
             DistributeOverflow(_index, belowValid, belowIndex, leftValid, leftIndex, rightValid, rightIndex, aboveValid, aboveIndex);
+        }
+
+        private void UpdateCorrosion(int2 _index, bool _belowValid, int2 _belowIndex, bool _leftValid, int2 _leftIndex, bool _rightValid, int2 _rightIndex, bool _aboveValid, int2 _aboveIndex)
+        {
+            var cell = GetCell(_index);
+            var properties = m_cellProperties[(int)cell.m_type];
+            float corrosionPower = properties.corrosivity * cell.m_amount * m_fixedDeltaTime;
+            if (corrosionPower <= 0f)
+                return;
+            
+            if (_belowValid)
+            {
+                var above = GetCell(_belowIndex);
+                var p = m_cellProperties[(int)above.m_type];
+                if (p.corrodability > 0f)
+                    RemoveFromCell(_belowIndex, p.corrodability * corrosionPower, float2.zero);
+            }
+            if (_leftValid)
+            {
+                var left = GetCell(_leftIndex);
+                var p = m_cellProperties[(int)left.m_type];
+                if (p.corrodability > 0f)
+                    RemoveFromCell(_leftIndex, p.corrodability * corrosionPower, float2.zero);
+            }
+            if (_rightValid)
+            {
+                var right = GetCell(_rightIndex);
+                var p = m_cellProperties[(int)right.m_type];
+                if (p.corrodability > 0f)
+                    RemoveFromCell(_rightIndex, p.corrodability * corrosionPower, float2.zero);
+            }
+            if (_aboveValid)
+            {
+                var above = GetCell(_aboveIndex);
+                var p = m_cellProperties[(int)above.m_type];
+                if (p.corrodability > 0f)
+                    RemoveFromCell(_aboveIndex, p.corrodability * corrosionPower, float2.zero);
+            }
+            
+            RemoveFromCell(_index, corrosionPower, float2.zero);
         }
 
         private void UpdateMainDir(int2 _index, bool _dirValid, int2 _otherIndex, float2 _dir)
@@ -655,17 +701,9 @@ public class GridHandler : MonoBehaviour
         {
             if (_amount <= 0f)
                 return;
-
-            var cell1 = GetCell(_index1);
-            var cell2 = GetCell(_index2);
             
-            var averageVelocity = (cell1.m_velocity + cell2.m_velocity) * 0.5f;
-            var velocityDot = math.dot(_velocity, averageVelocity);
-            var maxTransfer = cell1.m_amount;
-            var transferAmount = math.clamp(_amount * (1 + velocityDot * c_VelocityPull), 0f, maxTransfer);
-            
-            RemoveFromCell(_index1, transferAmount, _velocity);
-            AddToCell(_index2, _type, transferAmount, _velocity);
+            RemoveFromCell(_index1, _amount, _velocity);
+            AddToCell(_index2, _type, _amount, _velocity);
         }
 
         private void AddToCell(int2 _index, Cell.Type _type, float _amount, float2 _velocity)

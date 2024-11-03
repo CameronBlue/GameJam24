@@ -5,11 +5,9 @@ using Random = UnityEngine.Random;
 
 public class Potion : MonoBehaviour
 {
-    private const float c_attractiveForce = 0.001f;
-    private const float c_repulsiveForce = 0.000001f;
-    
     [SerializeField] private FluidPixel m_fluidPixelPrefab;
     [SerializeField] private CustomCollider m_customColl;
+    [SerializeField] private Collider2D m_coll;
     [SerializeField] private Rigidbody2D m_rb;
 
     private int m_capacity;
@@ -34,17 +32,15 @@ public class Potion : MonoBehaviour
             gameObject.SetActive(false);
             Destroy(gameObject);
         }
-        _prevVelocity = m_rb.linearVelocity;
     }
 
     private void Shatter()
     {
-        var inertia = _prevVelocity;
+        var inertia = m_rb.linearVelocity;
         for (int i = 0; i < m_capacity; ++i)
         {
-            var posOffset = Random.insideUnitCircle * 0.1f;
-            var fluidPixel = Instantiate(m_fluidPixelPrefab, transform.position + posOffset.AddZ(), Quaternion.identity);
-            fluidPixel.Init(m_type, 1f, new Vector2(_prevVelocity.x * Random.Range(0.98f, 1.02f), _prevVelocity.y * Random.Range(0.98f, 1.02f)));
+            var fluidPixel = Instantiate(m_fluidPixelPrefab, Utility.RandomInsideBounds(m_coll.bounds), Quaternion.identity);
+            fluidPixel.Init(m_type, 1f, new Vector2(inertia.x * Random.Range(0.98f, 1.02f), inertia.y * Random.Range(0.98f, 1.02f)));
         }
     }
 }
