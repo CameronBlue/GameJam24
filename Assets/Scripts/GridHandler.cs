@@ -43,7 +43,7 @@ public class GridHandler : MonoBehaviour
         public Type m_type;
         public float m_amount;
         public bool m_crystallised;
-
+        
         public bool IsEmpty => IsType(Type.Empty);
         public bool IsNull => IsType(Type.Null);
         public bool IsType(Type _type) => m_type == _type;
@@ -75,14 +75,25 @@ public class GridHandler : MonoBehaviour
     
     [Serializable] public struct CellProperties 
     { 
+        [Tooltip("Please don't change this, I just couldn't find a way to lock it")]
         public Cell.Type type; //Only here for inspector
+        [Tooltip("Only used for non-grid particles")]
         public Color32 colour;
-        public float gravity;
+        [Tooltip("Determines which way gravity applies, and which tiles it will sink through")]
+        public float weight;
+        [Tooltip("Whether the texture edges will apply only next to empty tiles, or at all edges of this type")]
         public bool edgeNeedsEmpty;
+        [Tooltip("How slowly the fluid flows (1 means this block is solid)")]
         public float viscosity;
+        [Tooltip("How quickly the fluid corrodes tiles. Also changes how quickly the acid is used up")]
         public float corrosivity;
+        [Tooltip("How easily a tile is corroded by acid")]
         public float corrodability;
+        [Tooltip("How likely the tile is to alight neighbours. Also changes how quickly the fire burns out")]
+        public float heat;
+        [Tooltip("How likely a tile is to catch on fire")]
         public float flammability;
+        [Tooltip("Whether this liquid solidifies on contact with solid blocks")]
         public bool crystallisable;
     }
     
@@ -324,9 +335,9 @@ public class GridHandler : MonoBehaviour
         }
     }
     
-    public CellProperties GetProperties(Cell _cell)
+    public CellProperties GetProperties(Cell.Type _type)
     {
-        return m_cellProperties[(int)_cell.m_type];
+        return m_cellProperties[(int)_type];
     }
     
     public int2 GetCell(Vector2 _p, Func<float, int> Clamp)
@@ -528,6 +539,7 @@ public class GridHandler : MonoBehaviour
         [ReadOnly] private NativeArray<CellProperties> m_cellProperties;
         [ReadOnly] private int m_width, m_height;
         [ReadOnly] private float m_fixedDeltaTime;
+        [ReadOnly] private Random m_random;
 
         public UpdateFluidsJob(NativeArray<Cell> _cells, NativeArray<CellProperties> _properties, NativeHashSet<int2> _fluidCells, int _width, int _height)
         {
@@ -537,6 +549,7 @@ public class GridHandler : MonoBehaviour
             m_width = _width;
             m_height = _height;
             m_fixedDeltaTime = Time.fixedDeltaTime;
+            m_random = new Random((uint)UnityEngine.Random.Range(0, uint.MaxValue));
         }
 
         private const int c_Cycles = 1;
@@ -588,11 +601,77 @@ public class GridHandler : MonoBehaviour
         
         private void ActuallyUpdateCell(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)
         {
+            UpdateDecay(ref _cell);
+            UpdateBurning(ref _cell, ref _below, ref _left, ref _right, ref _above);
             UpdateCorrosion(ref _cell, ref _below, ref _left, ref _right, ref _above);
             UpdateCrystallisation(ref _cell, ref _below, ref _left, ref _right, ref _above);
-            UpdateMainDir(ref _cell, ref _below);
-            UpdateAuxilliaryDirs(ref _cell, ref _left, ref _right);
+            
+            var properties = m_cellProperties[(int)_cell.m_type];
+            var updateChance = properties.viscosity;
+            var rand = m_random.NextFloat(0f, 1f);
+            if (rand * rand < updateChance)
+                return;
+            
+            var weight = properties.weight;
+            if (weight != 0f)
+            {
+                UpdateMainDir(ref _cell, ref ((weight > 0f) ? ref _below : ref _above));
+                UpdateAuxilliaryDirs(ref _cell, ref _left, ref _right);
+            }
             DistributeOverflow(ref _cell, ref _below, ref _left, ref _right, ref _above);
+        }
+
+        private void UpdateDecay(ref Cell _cell)
+        {
+            var rand = m_random.NextFloat(0f, 1f);
+            if (_cell.IsType(Cell.Type.Smoke) && rand > 0.995f)
+                _cell.Clear();
+        }
+        
+        private void UpdateBurning(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)
+        {
+            var properties = m_cellProperties[(int)_cell.m_type];
+            float burnPower = properties.heat * m_fixedDeltaTime;
+            if (burnPower <= 0f)
+                return;
+            int airCount = 0;
+            if (!_below.IsNull)
+            {
+                var p = m_cellProperties[(int)_below.m_type];
+                if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
+                    _below.m_type = Cell.Type.Fire;
+                if (_below.IsEmpty)
+                    ++airCount;
+            }
+            if (!_left.IsNull)
+            {
+                var p = m_cellProperties[(int)_left.m_type];
+                if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
+                    _left.m_type = Cell.Type.Fire;
+                if (_left.IsEmpty)
+                    ++airCount;
+            }
+            if (!_right.IsNull)
+            {
+                var p = m_cellProperties[(int)_right.m_type];
+                if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
+                    _right.m_type = Cell.Type.Fire;
+                if (_right.IsEmpty)
+                    ++airCount;
+            }
+            if (!_above.IsNull)
+            {
+                var p = m_cellProperties[(int)_above.m_type];
+                if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
+                    _above.m_type = Cell.Type.Fire;
+                if (_above.IsEmpty)
+                    ++airCount;
+            }
+            if (m_random.NextFloat(0f, 1f) > burnPower * (airCount + 1))
+                return;
+            _cell.Clear();
+            if (_above.IsEmpty)
+                _above.Add(Cell.Type.Smoke, 5f);
         }
 
         private void UpdateCorrosion(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)

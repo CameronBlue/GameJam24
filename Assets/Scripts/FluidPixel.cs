@@ -14,9 +14,9 @@ public class FluidPixel : MonoBehaviour
     {
         transform.localScale = Manager.c_CellDiameter * Vector3.one;
         m_cell = new GridHandler.Cell { m_type = _type, m_amount = _amount };
-        var properties = GridHandler.Me.GetProperties(m_cell);
+        var properties = GridHandler.Me.GetProperties(_type);
         m_rend.color = properties.colour;
-        m_rb.gravityScale = properties.gravity;
+        m_rb.gravityScale = properties.weight;
         
         m_rb.AddForce(_force, ForceMode2D.Impulse);
     }

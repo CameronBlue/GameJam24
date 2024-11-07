@@ -6,7 +6,6 @@ public class MyCharacterController : MonoBehaviour
     
     [SerializeField] private ScriptableStats _stats;
     private Rigidbody2D _rb;
-    private CapsuleCollider2D _col;
     private CustomCollider _customCol;
     private FrameInput _frameInput;
     private Vector2 _frameVelocity;
@@ -23,20 +22,18 @@ public class MyCharacterController : MonoBehaviour
 
     private float _time;
     
-    void Awake()
+    private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
-        //TODO: Update collision detection
-        _col = GetComponent<CapsuleCollider2D>();
         _customCol = GetComponent<CustomCollider>();
         
         _cachedQueryStartInColliders = Physics2D.queriesStartInColliders;
     }
 
     
-    void Update()
+    private void Update()
     {
-        _time += Time.deltaTime;
+        _time = Time.time;
         GatherInput();
     }
     

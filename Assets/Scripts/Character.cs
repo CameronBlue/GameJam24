@@ -13,9 +13,15 @@ public class Character : MonoBehaviour
     private Camera m_mainCam;
 
     [SerializeField]
+    private SpriteRenderer m_sr;
+    [SerializeField] 
+    private Animator m_anim;
+    [SerializeField]
     private Rigidbody2D m_rb;
     [SerializeField]
     private CustomCollider m_customColl;
+
+    public int m_potionNum;
     
     private void Start()
     {
@@ -27,7 +33,27 @@ public class Character : MonoBehaviour
 
     private void Update()
     {
+        UpdateAnimator();
         UpdateGun();
+        
+        for (int i = 0; i <= 9; ++i)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha0 + i))
+            {
+                m_potionNum = i + 1;
+                break;
+            }
+        }
+        
+    }
+    
+    private void UpdateAnimator()
+    {
+        var xVel = m_rb.linearVelocity.x;
+        m_sr.flipX = xVel < 0;
+        var speed = Mathf.Abs(xVel);
+        m_anim.SetFloat("Speed", speed);
+        m_anim.SetBool("Moving", speed > 0.1f);
     }
 
     private void UpdateGun()
@@ -43,7 +69,7 @@ public class Character : MonoBehaviour
         var startPos = (Vector2)transform.position + Vector2.up * 0.5f;
         var force = Utility.GetForceForPosition(startPos, _target, 10f);
         var potion = Instantiate(m_PotionPrefab, startPos, Quaternion.identity);
-        potion.Init(force, 250, GridHandler.Cell.Type.Platform);
+        potion.Init(force, 250, (GridHandler.Cell.Type)m_potionNum);
     }
     
     private void FixedUpdate()
