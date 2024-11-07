@@ -5,20 +5,18 @@ public static class Utility
     public static Vector2 GetForceForPosition(Vector2 _pos, Vector2 _target, float _speed, float _gravityFactor = 1f)
     {
         Vector2 displacement = _target - _pos;
+        displacement.y += Mathf.Abs(displacement.x) * 0.5f;
         float dx = displacement.x;
         float dy = displacement.y;
-
-        float g = Physics2D.gravity.y * _gravityFactor;
-        float sqrSpeed = _speed * _speed;
-
-        float d = (sqrSpeed * sqrSpeed) - (g * (g * dx * dx + 2 * dy * sqrSpeed));
-        if (d < 0)
+        float a = Physics2D.gravity.y * _gravityFactor;
+        float dx2 = dx * dx;
+        float thing = a * dx2 / (_speed * _speed);
+        var discriminant = dx2 - thing * (thing + 2 * dy);
+        if (discriminant < 0)
             return Vector2.zero;
-
-        float tanTheta = (sqrSpeed - Mathf.Sqrt(d)) / (g * dx);
-        float angle = dx < 0 ? Mathf.PI + Mathf.Atan(tanTheta) : Mathf.Atan(tanTheta);
-
-        return new Vector2(_speed * Mathf.Cos(angle), _speed * Mathf.Sin(angle));
+        float tanTheta = (Mathf.Abs(dx) - Mathf.Sqrt(discriminant)) / thing;
+        float angle = (dx < 0) ? Mathf.PI - Mathf.Atan(tanTheta) : Mathf.Atan(tanTheta);
+        return _speed * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
     }
 
     public static Vector2 Rotate(this Vector2 _v2, float _angle)
@@ -35,8 +33,8 @@ public static class Utility
         return new(_v2.x, _v2.y, _z);
     }
     
-    public static Vector2 RandomInsideBounds(Bounds _bounds)
+    public static Vector2 RandomInsideBounds(CustomBounds _bounds, float _deadZone = 0f)
     {
-        return new Vector2(Random.Range(_bounds.min.x, _bounds.max.x), Random.Range(_bounds.min.y, _bounds.max.y));
+        return new Vector2(Random.Range(_bounds.min.x + _deadZone, _bounds.max.x - _deadZone), Random.Range(_bounds.min.y + _deadZone, _bounds.max.y - _deadZone));
     }
 }

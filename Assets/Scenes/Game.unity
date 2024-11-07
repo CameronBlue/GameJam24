@@ -131,7 +131,6 @@ GameObject:
   - component: {fileID: 87336035}
   - component: {fileID: 87336034}
   - component: {fileID: 87336037}
-  - component: {fileID: 87336038}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -257,134 +256,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!114 &87336038
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 87336033}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0c3ad187c3f77a4d9d796c24d502c73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_cellProperties:
-  - type: 0
-    colour:
-      serializedVersion: 2
-      rgba: 0
-    viscosity: 0
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  - type: 1
-    colour:
-      serializedVersion: 2
-      rgba: 4284506208
-    viscosity: 1
-    corrosivity: 0
-    corrodability: 10
-    flammability: 0
-  - type: 2
-    colour:
-      serializedVersion: 2
-      rgba: 3019531047
-    viscosity: 0.05
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  - type: 3
-    colour:
-      serializedVersion: 2
-      rgba: 4289658879
-    viscosity: 1
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  - type: 4
-    colour:
-      serializedVersion: 2
-      rgba: 4278201343
-    viscosity: 0.8
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  - type: 5
-    colour:
-      serializedVersion: 2
-      rgba: 4278198878
-    viscosity: 1
-    corrosivity: 0
-    corrodability: 0
-    flammability: 1
-  - type: 6
-    colour:
-      serializedVersion: 2
-      rgba: 4278202879
-    viscosity: 0.1
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  - type: 7
-    colour:
-      serializedVersion: 2
-      rgba: 2654418743
-    viscosity: 0.1
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  - type: 8
-    colour:
-      serializedVersion: 2
-      rgba: 2647773649
-    viscosity: 0
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  - type: 9
-    colour:
-      serializedVersion: 2
-      rgba: 3305159692
-    viscosity: 0.2
-    corrosivity: 0.1
-    corrodability: 0
-    flammability: 0
-  - type: 10
-    colour:
-      serializedVersion: 2
-      rgba: 1677721599
-    viscosity: 0
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  - type: 11
-    colour:
-      serializedVersion: 2
-      rgba: 3825205248
-    viscosity: 0.7
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  - type: 12
-    colour:
-      serializedVersion: 2
-      rgba: 4278190080
-    viscosity: 0.8
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  - type: 13
-    colour:
-      serializedVersion: 2
-      rgba: 2311438940
-    viscosity: 1
-    corrosivity: 0
-    corrodability: 0
-    flammability: 0
-  m_image: {fileID: 1952815454}
-  m_level: {fileID: 2800000, guid: 9484ddd525518264b8d2972870061dad, type: 3}
-  m_textureHolder: {fileID: 0}
 --- !u!1 &170300163
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,10 +267,10 @@ GameObject:
   - component: {fileID: 170300165}
   - component: {fileID: 170300164}
   - component: {fileID: 170300167}
-  - component: {fileID: 170300166}
   - component: {fileID: 170300168}
   - component: {fileID: 170300169}
   - component: {fileID: 170300170}
+  - component: {fileID: 170300171}
   m_Layer: 3
   m_Name: Character
   m_TagString: Untagged
@@ -451,8 +322,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.6415094, g: 0.6415094, b: 0.6415094, a: 1}
+  m_Sprite: {fileID: 21300000, guid: e40c8578dccbb524fa3728d014afceb6, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -472,57 +343,11 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.5, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &170300166
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 170300163}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: 2d3154a44d681904bac8df8a8cd8b702, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
 --- !u!50 &170300167
 Rigidbody2D:
   serializedVersion: 5
@@ -564,7 +389,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PotionPrefab: {fileID: 8699103085411899179, guid: 0289d016e14f6ba4f9d1b547e82c3f6a, type: 3}
   m_rb: {fileID: 170300167}
-  m_coll: {fileID: 170300166}
   m_customColl: {fileID: 170300169}
 --- !u!114 &170300169
 MonoBehaviour:
@@ -578,7 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6da45ab7f0abb245861adb5104842dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_coll: {fileID: 170300166}
+  m_bounds: {fileID: 170300171}
   m_rb: {fileID: 170300167}
 --- !u!114 &170300170
 MonoBehaviour:
@@ -593,6 +417,236 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _stats: {fileID: 11400000, guid: 4e20e2141e086624eab07a8260cc9e7e, type: 2}
+--- !u!114 &170300171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 170300163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3940a75efebb4fdaba9f7f3c66dc8898, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localCenter: {x: 0, y: 0}
+  size: {x: 1.1, y: 1}
+--- !u!1 &826655394
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 826655397}
+  - component: {fileID: 826655396}
+  - component: {fileID: 826655395}
+  m_Layer: 0
+  m_Name: Managers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &826655395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826655394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0c3ad187c3f77a4d9d796c24d502c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_cellProperties:
+  - type: 0
+    colour:
+      serializedVersion: 2
+      rgba: 0
+    gravity: 0
+    edgeNeedsEmpty: 0
+    viscosity: 0
+    corrosivity: 0
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  - type: 1
+    colour:
+      serializedVersion: 2
+      rgba: 4284506208
+    gravity: 0
+    edgeNeedsEmpty: 0
+    viscosity: 1
+    corrosivity: 0
+    corrodability: 1
+    flammability: 0
+    crystallisable: 0
+  - type: 2
+    colour:
+      serializedVersion: 2
+      rgba: 3019531047
+    gravity: 1
+    edgeNeedsEmpty: 0
+    viscosity: 0.05
+    corrosivity: 0
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  - type: 3
+    colour:
+      serializedVersion: 2
+      rgba: 4289658879
+    gravity: 0
+    edgeNeedsEmpty: 1
+    viscosity: 1
+    corrosivity: 0
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  - type: 4
+    colour:
+      serializedVersion: 2
+      rgba: 4278201343
+    gravity: 1
+    edgeNeedsEmpty: 0
+    viscosity: 0.8
+    corrosivity: 0
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  - type: 5
+    colour:
+      serializedVersion: 2
+      rgba: 4278198878
+    gravity: 0
+    edgeNeedsEmpty: 0
+    viscosity: 1
+    corrosivity: 0
+    corrodability: 0
+    flammability: 1
+    crystallisable: 0
+  - type: 6
+    colour:
+      serializedVersion: 2
+      rgba: 4278202879
+    gravity: 0
+    edgeNeedsEmpty: 0
+    viscosity: 0.1
+    corrosivity: 0
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  - type: 7
+    colour:
+      serializedVersion: 2
+      rgba: 2654418743
+    gravity: 0
+    edgeNeedsEmpty: 0
+    viscosity: 0.1
+    corrosivity: 0
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  - type: 8
+    colour:
+      serializedVersion: 2
+      rgba: 3959367184
+    gravity: 0.2
+    edgeNeedsEmpty: 0
+    viscosity: 1
+    corrosivity: 0
+    corrodability: 20
+    flammability: 10
+    crystallisable: 0
+  - type: 9
+    colour:
+      serializedVersion: 2
+      rgba: 3305159692
+    gravity: 1
+    edgeNeedsEmpty: 0
+    viscosity: 0.2
+    corrosivity: 10
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  - type: 10
+    colour:
+      serializedVersion: 2
+      rgba: 1677721599
+    gravity: 0
+    edgeNeedsEmpty: 0
+    viscosity: 0
+    corrosivity: 0
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  - type: 11
+    colour:
+      serializedVersion: 2
+      rgba: 3825205248
+    gravity: 1
+    edgeNeedsEmpty: 0
+    viscosity: 0.7
+    corrosivity: 0
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  - type: 12
+    colour:
+      serializedVersion: 2
+      rgba: 4278190080
+    gravity: 1
+    edgeNeedsEmpty: 0
+    viscosity: 0.8
+    corrosivity: 0
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  - type: 13
+    colour:
+      serializedVersion: 2
+      rgba: 2311438940
+    gravity: 0
+    edgeNeedsEmpty: 0
+    viscosity: 1
+    corrosivity: 0
+    corrodability: 0
+    flammability: 0
+    crystallisable: 0
+  m_image: {fileID: 1952815454}
+  m_level: {fileID: 2800000, guid: 9484ddd525518264b8d2972870061dad, type: 3}
+  m_textureHolder: {fileID: 0}
+--- !u!114 &826655396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826655394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd03a372edbf6234f8d357d5eb419418, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_fluidPixelHolder: {fileID: 1389914672}
+--- !u!4 &826655397
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826655394}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.7430344, y: -5.33843, z: -0.6578152}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &863852553
 GameObject:
   m_ObjectHideFlags: 0
@@ -695,6 +749,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1389914671
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1389914672}
+  m_Layer: 0
+  m_Name: FluidPixelHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1389914672
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1389914671}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.5138824, y: -7.7206283, z: -0.03871148}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1952815453
 GameObject:
   m_ObjectHideFlags: 0
@@ -774,3 +859,5 @@ SceneRoots:
   - {fileID: 87336036}
   - {fileID: 170300165}
   - {fileID: 863852557}
+  - {fileID: 1389914672}
+  - {fileID: 826655397}

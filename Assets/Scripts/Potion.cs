@@ -7,7 +7,7 @@ public class Potion : MonoBehaviour
 {
     [SerializeField] private FluidPixel m_fluidPixelPrefab;
     [SerializeField] private CustomCollider m_customColl;
-    [SerializeField] private Collider2D m_coll;
+    [SerializeField] private CustomBounds m_bounds;
     [SerializeField] private Rigidbody2D m_rb;
 
     private int m_capacity;
@@ -25,21 +25,22 @@ public class Potion : MonoBehaviour
 
     private void FixedUpdate()
     {
-        var hit = m_customColl.OnGround || m_customColl.OnWall;
-        if (hit)
+        if (m_customColl.HitObstacle)
         {
             Shatter();
             gameObject.SetActive(false);
             Destroy(gameObject);
         }
+        _prevVelocity = m_rb.linearVelocity;
     }
 
     private void Shatter()
     {
-        var inertia = m_rb.linearVelocity;
+        var inertia = _prevVelocity;
         for (int i = 0; i < m_capacity; ++i)
         {
-            var fluidPixel = Instantiate(m_fluidPixelPrefab, Utility.RandomInsideBounds(m_coll.bounds), Quaternion.identity);
+            var pos = Utility.RandomInsideBounds(m_bounds, Manager.c_CellRadius);
+            var fluidPixel = Instantiate(m_fluidPixelPrefab, pos, Quaternion.identity, Manager.Me.m_fluidPixelHolder);
             fluidPixel.Init(m_type, 1f, new Vector2(inertia.x * Random.Range(0.98f, 1.02f), inertia.y * Random.Range(0.98f, 1.02f)));
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -14,15 +15,12 @@ using Random = Unity.Mathematics.Random;
 
 public class GridHandler : MonoBehaviour
 {
-    public const float c_ImageScale = 4f;
-    public const float c_CellDiameter = c_ImageScale * 0.01f;
-    public const float c_CellInverseD = 1f / c_CellDiameter;
-
     public static GridHandler Me;
     
     public struct Cell
     {
-        private const float c_velocityReduction = 0.995f;
+        private const float c_EmptyThreshold = 1e-10f;
+        public static Cell Null => new() {m_type = Type.Null};
         public enum Type
         {
             Empty,
@@ -33,60 +31,61 @@ public class GridHandler : MonoBehaviour
             Wood,
             Fire,
             Smoke,
-            Steam,
+            Platform,
             Acid,
             Gas,
             Oil,
             Tar,
-            Ice
+            Ice,
+            Null //A real cell should never be this type 
         }
         
         public Type m_type;
         public float m_amount;
-        public float2 m_velocity;
+        public bool m_crystallised;
 
-        public bool IsLiquid(NativeArray<CellProperties> _properties)
-        {
-            return m_type != Type.Empty && _properties[(int)m_type].viscosity < 1f;
-        }
+        public bool IsEmpty => IsType(Type.Empty);
+        public bool IsNull => IsType(Type.Null);
+        public bool IsType(Type _type) => m_type == _type;
         
-        public Cell TryAdd(Cell _otherCell, float2 _from, out bool _success)
+        public bool IsFluid(NativeArray<CellProperties> _properties, bool _includeEmpty)
         {
-            _success = m_type == Type.Empty || m_type == _otherCell.m_type;
-            return _success ? Add(_otherCell.m_type, _otherCell.m_amount, _from) : this;
+            return (_includeEmpty || !IsEmpty) && !m_crystallised && _properties[(int)m_type].viscosity < 1f;
         }
 
-        public Cell Add(Type _type, float _amount, float2 _from)
+        public void Add(Type _type, float _amount)
         {
-            var newAmount = (m_type == Type.Empty ? 0 : m_amount) + _amount;
-            var newVelocity = m_velocity - _amount * _from;
-            return new Cell {m_type = _type, m_amount = newAmount, m_velocity = newVelocity};
+            m_amount = math.select(_amount + m_amount, _amount, IsEmpty);
+            m_type = _type;
         }
 
-        public Cell Remove(float _amount, float2 _to)
+        public void Remove(float _amount)
         {
             var newAmount = m_amount - _amount;
-            var newType = newAmount <= 0f ? Type.Empty : m_type;
-            var newVelocity = m_velocity + _amount * _to;
-            return new Cell {m_type = newType, m_amount = newAmount, m_velocity = newVelocity}; 
+            m_amount = math.select(0f, newAmount, newAmount > c_EmptyThreshold);
+            m_type = (Type)math.select((int)Type.Empty, (int)m_type, newAmount > c_EmptyThreshold);
         }
 
-        public Cell Update()
+        public void Clear()
         {
-            m_velocity *= c_velocityReduction;
-            return this;
+            m_amount = 0f;
+            m_type = Type.Empty;
         }
     }
     
     [Serializable] public struct CellProperties 
     { 
         public Cell.Type type; //Only here for inspector
-        public Color32 colour; 
+        public Color32 colour;
+        public float gravity;
+        public bool edgeNeedsEmpty;
         public float viscosity;
         public float corrosivity;
         public float corrodability;
         public float flammability;
+        public bool crystallisable;
     }
+    
     [SerializeField] private List<CellProperties> m_cellProperties;
     private NativeArray<CellProperties> m_cellPropertiesNative;
 
@@ -98,6 +97,9 @@ public class GridHandler : MonoBehaviour
     
     private NativeArray<Cell> m_cells;
     private NativeHashSet<int2> m_fluidCells;
+    
+    private bool fluidUpdateOngoing;
+    private JobHandle fluidUpdateJob;
 
     private int2 m_spawnPoint;
     
@@ -113,9 +115,16 @@ public class GridHandler : MonoBehaviour
 
     private void Start()
     {
+        SetupImage();
+        SetupProperties();
+        LoadMap();
+    }
+
+    private void SetupImage()
+    {
         m_levelWidth = m_level.width;
         m_levelHeight = m_level.height;
-        m_image.localScale = new Vector3(c_ImageScale, c_ImageScale, 1f);
+        m_image.localScale = new Vector3(Manager.c_ImageScale, Manager.c_ImageScale, 1f);
         m_image.sizeDelta = new Vector2(m_levelWidth, m_levelHeight);
         m_textureHolder = new Texture2D(m_levelWidth, m_levelHeight, TextureFormat.RGBA32, 0, true)
         {
@@ -123,21 +132,30 @@ public class GridHandler : MonoBehaviour
         };
         m_image.GetComponent<RawImage>().material.SetTexture("_MainTex", m_textureHolder);
 
+    }
+
+    private void SetupProperties()
+    {
         m_cellPropertiesNative = new(m_cellProperties.Count, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         for (int i = 0; i < m_cellProperties.Count; ++i) //I will optimise if needed but should be a short array
             m_cellPropertiesNative[i] = m_cellProperties[i];
+    }
 
-        m_cells = new NativeArray<Cell>(m_levelWidth * m_levelHeight, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-        var job = new FillMapJob(m_cells, m_level);
-        job.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
-        job.GetSpecialCells(out var specialCells);
+    private void LoadMap()
+    {
+        m_cells = new NativeArray<Cell>(m_levelWidth * m_levelHeight + 1, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        m_cells[^1] = Cell.Null;
+        m_fluidCells = new NativeHashSet<int2>(m_levelWidth * m_levelHeight, Allocator.Persistent); //It should never come close to this amount but if something goes wrong it will prevent a memory leak
+        
+        var fillMapJob = new FillMapJob(m_cells, m_level);
+        fillMapJob.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
+        fillMapJob.GetSpecialCells(out var specialCells);
         m_spawnPoint = specialCells[0];
         
-        m_fluidCells = new NativeHashSet<int2>(64, Allocator.Persistent);
         var findFluidsJob = new FindFluidsJob(m_cells, m_cellPropertiesNative, m_fluidCells, m_levelWidth, m_levelHeight);
         findFluidsJob.Schedule().Complete();
     }
-
+    
     [BurstCompile]
     private struct FillMapJob : IJobParallelFor
     {
@@ -178,7 +196,7 @@ public class GridHandler : MonoBehaviour
             m_specialCells.Dispose();
         }
     }
-    
+
     [BurstCompile]
     private struct FindFluidsJob : IJob
     {
@@ -203,29 +221,29 @@ public class GridHandler : MonoBehaviour
                 for (int j = 0; j < m_height; ++j)
                 {
                     var cell = m_cells[i + j * m_width];
-                    if (cell.IsLiquid(m_cellProperties))
+                    if (cell.IsFluid(m_cellProperties, false))
                         m_fluidCells.Add(new(i, j));
                 }
             }
         }
     }
 
-    private void Update()
+    public Vector2 DebugPoint(Vector2 _point)
+    {
+        var index = GetCell(_point, Mathf.RoundToInt);
+        if (Input.GetMouseButtonDown(1))
+        {
+            var cell = m_cells[index.x + index.y * m_levelWidth];
+            Debug.LogError($"Clicked on {index} which is {cell.m_type} with {cell.m_amount}. Is registered: {m_fluidCells.Contains(index)}");
+        }
+        return GetPosition(new(index.x, index.y));
+    }
+
+    public void RenderTiles()
     {
         var job = new RenderJob(m_cells, m_cellPropertiesNative, m_levelWidth, m_levelHeight);
         job.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
         job.SetTexture(m_textureHolder);
-        
-        if (Input.GetKeyDown(KeyCode.P))
-            Time.timeScale = 1f - Time.timeScale;
-
-        if (Input.GetMouseButtonDown(1))
-        {
-            var point = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            var index = GetCell(point, Mathf.RoundToInt);
-            var cell = m_cells[index.x + index.y * m_levelWidth];
-            Debug.LogError($"Clicked on {index} which is {cell.m_type} travelling {cell.m_velocity} with {cell.m_amount}. Is registered: {m_fluidCells.Contains(index)}");
-        }
     }
 
     [BurstCompile]
@@ -250,10 +268,10 @@ public class GridHandler : MonoBehaviour
             var cell = m_cells[_index];
             var type = (int)cell.m_type;
             var properties = m_cellProperties[type];
-            var opacity = properties.viscosity > 1f ? 1f : math.min(1f, cell.m_amount);
+            var opacity = math.min(1f, cell.m_amount);
             
             m_texture[4 * _index] = (byte)type;
-            m_texture[4 * _index + 1] = GetNeighbourStatus(cell.m_type, _index);
+            m_texture[4 * _index + 1] = GetNeighbourStatus(cell.m_type, _index, !properties.edgeNeedsEmpty);
             m_texture[4 * _index + 2] = (byte)(255 * properties.viscosity);
             m_texture[4 * _index + 3] = (byte)(opacity * properties.colour.a);
         }
@@ -311,31 +329,27 @@ public class GridHandler : MonoBehaviour
         return m_cellProperties[(int)_cell.m_type];
     }
     
-    private int2 GetCell(Vector2 _p, Func<float, int> Clamp)
+    public int2 GetCell(Vector2 _p, Func<float, int> Clamp)
     {
-        var x = Mathf.Clamp(Clamp(m_levelWidth * 0.5f + c_CellInverseD * _p.x), 0, m_levelWidth - 1);
-        var y = Mathf.Clamp(Clamp(m_levelHeight * 0.5f + c_CellInverseD * _p.y), 0, m_levelHeight - 1);
+        var x = Mathf.Clamp(Clamp(m_levelWidth * 0.5f + _p.x / Manager.c_CellDiameter), 0, m_levelWidth - 1);
+        var y = Mathf.Clamp(Clamp(m_levelHeight * 0.5f + _p.y / Manager.c_CellDiameter), 0, m_levelHeight - 1);
         return new(x, y);
     }
     
-    private Vector2 GetPosition(Vector2 _i)
+    public float2 GetPosition(int2 _i) => GetPosition(_i, new(m_levelWidth, m_levelHeight));
+    
+    public static float2 GetPosition(int2 _i, int2 _l)
     {
-        _i.x -= m_levelWidth >> 1;
-        _i.y -= m_levelHeight >> 1;
-        return _i * c_CellDiameter;
+        _i.x -= _l.x >> 1;
+        _i.y -= _l.y >> 1;
+        return (float2)_i * Manager.c_CellDiameter;
     }
 
-    public Vector3[] CheckCells(Bounds _bounds)
+    public Vector3[][] CheckCells(int4[] _bounds)
     {
-        int2 si = GetCell(_bounds.min, Mathf.FloorToInt); //Start integers
-        int2 ei = GetCell(_bounds.max, Mathf.CeilToInt); //End integers
-        
-        var job = new CheckCellsJob(m_cells, m_cellPropertiesNative, si.x, si.y, ei.x, ei.y, m_levelWidth);
+        var job = new CheckCellsJob(m_cells, m_cellPropertiesNative, _bounds, m_levelWidth, m_levelHeight);
         job.Schedule().Complete();
-        var output = job.GetOutput();
-        for (int i = 0; i < output.Length; ++i)
-            output[i] = GetPosition(output[i]).AddZ(output[i].z);
-        return output;
+        return job.GetOutput();
     }
 
 
@@ -344,46 +358,64 @@ public class GridHandler : MonoBehaviour
     {
         [ReadOnly] private NativeArray<Cell> m_cells;
         [ReadOnly] private NativeArray<CellProperties> m_cellProperties;
-        [ReadOnly] private int m_sx, m_sy, m_ex, m_ey;
-        [ReadOnly] private int m_width;
+        [ReadOnly] private NativeArray<int4> m_boundsToCheck;
+        [ReadOnly] private int2 m_mapSize;
         private NativeList<float3> m_output;
+        private NativeArray<int> m_outputAccessIndices; 
 
-        public CheckCellsJob(NativeArray<Cell> _cells, NativeArray<CellProperties> _properties, int _sx, int _sy, int _ex, int _ey, int _width)
+        public CheckCellsJob(NativeArray<Cell> _cells, NativeArray<CellProperties> _properties, int4[] _boundsToCheck, int _width, int _height)
         {
             m_cells = _cells;
             m_cellProperties = _properties;
-            m_sx = _sx;
-            m_sy = _sy;
-            m_ex = _ex;
-            m_ey = _ey;
-            m_width = _width;
-            m_output = new((m_ex - m_sx + 1) * (m_ey - m_sy + 1), Allocator.TempJob);
+            m_boundsToCheck = new(_boundsToCheck, Allocator.TempJob);
+            m_mapSize = new(_width, _height);
+            m_output = new(128, Allocator.TempJob);
+            m_outputAccessIndices = new(m_boundsToCheck.Length, Allocator.TempJob);
         }
 
         public void Execute()
         {
-            for (int x = m_sx; x <= m_ex; ++x)
+            for (int i = 0; i < m_boundsToCheck.Length; ++i)
             {
-                for (int y = m_sy; y <= m_ey; ++y)
+                var bounds = m_boundsToCheck[i];
+                
+                for (int x = bounds.x; x <= bounds.z; ++x)
                 {
-                    var index = x + y * m_width;
-                    var cell = m_cells[index];
-                    var viscosity = m_cellProperties[(int)cell.m_type].viscosity;
-
-                    if (viscosity <= 0f)
-                        continue;
-                    
-                    m_output.Add(new(x, y, viscosity));
+                    for (int y = bounds.y; y <= bounds.w; ++y)
+                    {
+                        var index = x + y * m_mapSize.x;
+                        var cell = m_cells[index];
+                        var viscosity = cell.IsFluid(m_cellProperties, true) ? m_cellProperties[(int)cell.m_type].viscosity : 1f;
+                        if (viscosity <= 0f)
+                            continue;
+                        m_output.Add(new(GetPosition(new(x, y), m_mapSize), viscosity));
+                    }
                 }
+                m_outputAccessIndices[i] = m_output.Length;
             }
         }
 
-        public Vector3[] GetOutput()
+        public Vector3[][] GetOutput()
         {
-            var array = m_output.AsArray().Reinterpret<Vector3>();
-            var output = new Vector3[m_output.Length];
-            NativeArray<Vector3>.Copy(array, output, output.Length);
+            var nativeOutput = m_output.AsArray().Reinterpret<Vector3>();
+            var outputCount = m_outputAccessIndices.Length;
+            var output = new Vector3[outputCount][];
+
+            var prevIndex = 0;
+            for (int i = 0; i < outputCount; ++i)
+            {
+                var index = m_outputAccessIndices[i];
+                var length = index - prevIndex;
+                output[i] = new Vector3[length];
+                if (length == 0)
+                    continue;
+                NativeArray<Vector3>.Copy(nativeOutput, prevIndex, output[i], 0, length);
+                prevIndex = index;
+            }
+            
+            m_boundsToCheck.Dispose();
             m_output.Dispose();
+            m_outputAccessIndices.Dispose();
             return output;
         }
     }
@@ -399,7 +431,7 @@ public class GridHandler : MonoBehaviour
     [BurstCompile]
     private struct AddIntoGridJob : IJob
     {
-        private const int c_Range = 3;
+        private const int c_Range = 5;
         private NativeArray<Cell> m_cells;
         private NativeHashSet<int2> m_fluidCells;
         [ReadOnly] private NativeArray<CellProperties> m_cellProperties;
@@ -412,7 +444,6 @@ public class GridHandler : MonoBehaviour
         {
             const int d = c_Range * 2 + 1;
             m_searchedCells = new(d * d, Allocator.TempJob);
-            
             m_cells = _cells;
             m_fluidCells = _fluidCells;
             m_cellProperties = _properties;
@@ -431,24 +462,19 @@ public class GridHandler : MonoBehaviour
         private bool CheckCellRecursive(int2 _pos, int _range)
         {
             m_searchedCells.Add(_pos);
-            var cell = m_cells[_pos.x + _pos.y * m_width];
-            var properties = m_cellProperties[(int)cell.m_type];
-            if (properties.viscosity >= 1f)
-                return false;
-
-            var wasFluid = cell.IsLiquid(m_cellProperties);
-            cell = cell.TryAdd(m_cell, -m_cell.m_velocity, out var success);
-            if (success)
+            ref Cell cell = ref m_cells.RefAt(_pos.x + _pos.y * m_width);
+            var wasEmpty = cell.m_type == Cell.Type.Empty;
+            var canAdd = cell.IsEmpty || cell.IsType(m_cell.m_type);
+            var hasRoom = cell.IsFluid(m_cellProperties, true) || cell.m_amount < 1f;
+            if (canAdd && hasRoom)
             {
-                var isFluid = cell.IsLiquid(m_cellProperties);
-                if (isFluid && !wasFluid)
+                cell.Add(m_cell.m_type, m_cell.m_amount);
+                var isFluid = cell.IsFluid(m_cellProperties, false);
+                if (isFluid && wasEmpty)
                     m_fluidCells.Add(_pos);
-                
-                m_cells[_pos.x + _pos.y * m_width] = cell;
                 return true;
             }
-
-            if (_range <= 0) 
+            if (_range <= 0 || !canAdd)
                 return false;
             
             for (int newX = _pos.x - 1; newX <= _pos.x + 1; ++newX)
@@ -473,16 +499,21 @@ public class GridHandler : MonoBehaviour
             m_searchedCells.Dispose();
         }
     }
-
-    private void FixedUpdate()
-    {
-        UpdateFluids();
-    }
-
-    private void UpdateFluids()
+    
+    public void UpdateFluids()
     {
         var job = new UpdateFluidsJob(m_cells, m_cellPropertiesNative, m_fluidCells, m_levelWidth, m_levelHeight);
-        job.Schedule().Complete();
+        //job.Execute();
+        fluidUpdateJob = job.Schedule();
+        fluidUpdateOngoing = true;
+    }
+    
+    public void CompleteFluidUpdate()
+    {
+        if (!fluidUpdateOngoing)
+            return;
+        fluidUpdateJob.Complete();
+        fluidUpdateOngoing = false;
     }
     
     [BurstCompile]
@@ -508,224 +539,250 @@ public class GridHandler : MonoBehaviour
             m_fixedDeltaTime = Time.fixedDeltaTime;
         }
 
-        private const int c_Cycles = 5;
+        private const int c_Cycles = 1;
+        private struct HeightComparer : IComparer<int2> { public int Compare(int2 _a, int2 _b) => _a.y.CompareTo(_b.y); }
         public void Execute()
         {
             for (int cycle = 0; cycle < c_Cycles; ++cycle)
             {
                 var fluidCellsCopy = m_fluidCells.ToNativeArray(Allocator.Temp);
-                for (int i = 0; i < fluidCellsCopy.Length; ++i)
-                {
-                    var cellIndex = fluidCellsCopy[i];
-                    SetCell(cellIndex, GetCell(cellIndex).Update());
-                    UpdateCell(cellIndex);
-                }
+                fluidCellsCopy.Sort(new HeightComparer());
+                foreach (var cell in fluidCellsCopy)
+                    UpdateCell(cell);
                 fluidCellsCopy.Dispose();
             }
         }
 
         private void UpdateCell(int2 _index)
         {
+            ref Cell cell = ref GetCell(_index);
             var belowIndex = _index + new int2(0, -1);
-            var belowValid = belowIndex.y >= 0;
             var leftIndex = _index + new int2(-1, 0);
-            var leftValid = leftIndex.x >= 0;
             var rightIndex = _index + new int2(1, 0);
-            var rightValid = rightIndex.x < m_width;
             var aboveIndex = _index + new int2(0, 1);
-            var aboveValid = aboveIndex.y < m_height;
+            ref Cell belowCell = ref GetCellChecked(belowIndex);
+            ref Cell leftCell = ref GetCellChecked(leftIndex);
+            ref Cell rightCell = ref GetCellChecked(rightIndex);
+            ref Cell aboveCell = ref GetCellChecked(aboveIndex);
 
+            ActuallyUpdateCell(ref cell, ref belowCell, ref leftCell, ref rightCell, ref aboveCell);
             
-            UpdateCorrosion(_index, belowValid, belowIndex, leftValid, leftIndex, rightValid, rightIndex, aboveValid, aboveIndex);
-
-            UpdateMainDir(_index, belowValid, belowIndex, new float2(0f, -1f));
-            UpdateAuxilliaryDirs(_index, leftValid, leftIndex, new float2(-1f, 0f), rightValid, rightIndex, new float2(1f, 0f));
-            DistributeOverflow(_index, belowValid, belowIndex, leftValid, leftIndex, rightValid, rightIndex, aboveValid, aboveIndex);
+            if (!cell.IsFluid(m_cellProperties, false))
+                m_fluidCells.Remove(_index);
+            UpdateFluidList(ref belowCell, belowIndex);
+            UpdateFluidList(ref leftCell, leftIndex);
+            UpdateFluidList(ref rightCell, rightIndex);
+            UpdateFluidList(ref aboveCell, aboveIndex);
         }
 
-        private void UpdateCorrosion(int2 _index, bool _belowValid, int2 _belowIndex, bool _leftValid, int2 _leftIndex, bool _rightValid, int2 _rightIndex, bool _aboveValid, int2 _aboveIndex)
+        private void UpdateFluidList(ref Cell _cell, int2 _index)
         {
-            var cell = GetCell(_index);
-            var properties = m_cellProperties[(int)cell.m_type];
-            float corrosionPower = properties.corrosivity * cell.m_amount * m_fixedDeltaTime;
+            if (_cell.IsNull)
+                return;
+
+            if (_cell.IsFluid(m_cellProperties, false))
+                m_fluidCells.Add(_index);
+            else
+                m_fluidCells.Remove(_index);
+        }
+        
+        private void ActuallyUpdateCell(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)
+        {
+            UpdateCorrosion(ref _cell, ref _below, ref _left, ref _right, ref _above);
+            UpdateCrystallisation(ref _cell, ref _below, ref _left, ref _right, ref _above);
+            UpdateMainDir(ref _cell, ref _below);
+            UpdateAuxilliaryDirs(ref _cell, ref _left, ref _right);
+            DistributeOverflow(ref _cell, ref _below, ref _left, ref _right, ref _above);
+        }
+
+        private void UpdateCorrosion(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)
+        {
+            var properties = m_cellProperties[(int)_cell.m_type];
+            float corrosionPower = properties.corrosivity * _cell.m_amount * m_fixedDeltaTime;
             if (corrosionPower <= 0f)
                 return;
+            int countCorroded = 0;
+            if (!_below.IsNull)
+            {
+                var p = m_cellProperties[(int)_below.m_type];
+                if (p.corrodability > 0f)
+                {
+                    _below.Remove(p.corrodability * corrosionPower);
+                    countCorroded++;
+                }
+            }
+            if (!_left.IsNull)
+            {
+                var p = m_cellProperties[(int)_left.m_type];
+                if (p.corrodability > 0f)
+                {
+                    _left.Remove(p.corrodability * corrosionPower);
+                    countCorroded++;
+                }
+            }
+            if (!_right.IsNull)
+            {
+                var p = m_cellProperties[(int)_right.m_type];
+                if (p.corrodability > 0f)
+                {
+                    _right.Remove(p.corrodability * corrosionPower);
+                    countCorroded++;
+                }
+            }
+            if (!_above.IsNull)
+            {
+                var p = m_cellProperties[(int)_above.m_type];
+                if (p.corrodability > 0f)
+                {
+                    _above.Remove(p.corrodability * corrosionPower);
+                    countCorroded++;
+                }
+            }
+            if (countCorroded > 0)
+                _cell.Remove(corrosionPower * countCorroded);
+        }
+        
+        private void UpdateCrystallisation(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)
+        {
+            var properties = m_cellProperties[(int)_cell.m_type];
+            if (!properties.crystallisable)
+                return;
             
-            if (_belowValid)
+            if (!_below.IsNull && !_below.IsFluid(m_cellProperties, true))
             {
-                var above = GetCell(_belowIndex);
-                var p = m_cellProperties[(int)above.m_type];
-                if (p.corrodability > 0f)
-                    RemoveFromCell(_belowIndex, p.corrodability * corrosionPower, float2.zero);
+                Crystallise(ref _cell);
+                return;
             }
-            if (_leftValid)
+            if (!_left.IsNull && !_left.IsFluid(m_cellProperties, true))
             {
-                var left = GetCell(_leftIndex);
-                var p = m_cellProperties[(int)left.m_type];
-                if (p.corrodability > 0f)
-                    RemoveFromCell(_leftIndex, p.corrodability * corrosionPower, float2.zero);
+                Crystallise(ref _cell);
+                return;
             }
-            if (_rightValid)
+            if (!_right.IsNull && !_right.IsFluid(m_cellProperties, true))
             {
-                var right = GetCell(_rightIndex);
-                var p = m_cellProperties[(int)right.m_type];
-                if (p.corrodability > 0f)
-                    RemoveFromCell(_rightIndex, p.corrodability * corrosionPower, float2.zero);
+                Crystallise(ref _cell);
+                return;
             }
-            if (_aboveValid)
-            {
-                var above = GetCell(_aboveIndex);
-                var p = m_cellProperties[(int)above.m_type];
-                if (p.corrodability > 0f)
-                    RemoveFromCell(_aboveIndex, p.corrodability * corrosionPower, float2.zero);
-            }
+            //No crystallising on undersides for now
+        }
+        
+        private void Crystallise(ref Cell _cell)
+        {
+            const float c_CrystalliseThreshold = 0.2f;
             
-            RemoveFromCell(_index, corrosionPower, float2.zero);
+            if (_cell.m_amount > c_CrystalliseThreshold)
+            {
+                _cell.m_crystallised = true;
+                _cell.m_amount = 1f;
+                return;
+            }
+            _cell.Clear();
         }
 
-        private void UpdateMainDir(int2 _index, bool _dirValid, int2 _otherIndex, float2 _dir)
+        private void UpdateMainDir(ref Cell _cell, ref Cell _other)
         {
-            var cell = GetCell(_index);
-            if (!_dirValid || cell.m_amount <= 0f)
+            var amount = _cell.m_amount;
+            if (amount <= 0f)
                 return;
-            var other = GetCell(_otherIndex);
-            var otherFullness = GetFullness(cell.m_type, other);
-            var space = 1f - otherFullness;
+            var space = 1f - GetFullness(_cell.m_type, _other);
             if (space <= 0f)
                 return;
-            var transferAmount = math.min(space, cell.m_amount);
-            Transfer(_index, _otherIndex, cell.m_type, transferAmount, _dir);
+            Transfer(ref _cell, ref _other, math.min(space, amount));
         }
 
-        private void UpdateAuxilliaryDirs(int2 _index, bool _dir1Valid, int2 _index1, float2 _dir1, bool _dir2Valid, int2 _index2, float2 _dir2)
+        private void UpdateAuxilliaryDirs(ref Cell _cell, ref Cell _dir1, ref Cell _dir2)
         {
-            var cell = GetCell(_index);
-            if (cell.m_amount <= 0f)
+            var amount = _cell.m_amount;
+            if (amount <= 0f)
                 return;
-            var cappedFullness = math.min(1f, cell.m_amount);
+            var cappedFullness = math.min(1f, amount);
+            var type = _cell.m_type;
             int factors = 0;
             float pull1 = 0f, pull2 = 0f;
-            if (_dir1Valid)
+            if (!_dir1.IsNull)
             {
-                var other1 = GetCell(_index1);
-                var otherFullness1 = GetFullness(cell.m_type, other1);
+                var otherFullness1 = GetFullness(type, _dir1);
                 pull1 = (cappedFullness - otherFullness1) * c_LateralDampeningFactor;
-                _dir1Valid = pull1 > c_MinimumFlowThreshold;
-                if (_dir1Valid)
+                if (pull1 > c_MinimumFlowThreshold)
                     factors++;
             }
-            if (_dir2Valid)
+            if (!_dir2.IsNull)
             {
-                var other2 = GetCell(_index2);
-                var otherFullness2 = GetFullness(cell.m_type, other2);
+                var otherFullness2 = GetFullness(type, _dir2);
                 pull2 = (cappedFullness - otherFullness2) * c_LateralDampeningFactor;
-                _dir2Valid = pull2 > c_MinimumFlowThreshold;
-                if (_dir2Valid)
+                if (pull2 > c_MinimumFlowThreshold)
                     factors++;
             }
             if (factors == 0)
                 return;
-            if (_dir1Valid)
-                Transfer(_index, _index1, cell.m_type, pull1 / factors, _dir1);
-            if (_dir2Valid)
-                Transfer(_index, _index2, cell.m_type, pull2 / factors, _dir2);
+            if (pull1 > c_MinimumFlowThreshold)
+                Transfer(ref _cell, ref _dir1, pull1 / factors);
+            if (pull2 > c_MinimumFlowThreshold)
+                Transfer(ref _cell, ref _dir2, pull2 / factors);
         }
         
-        private void DistributeOverflow(int2 _index, bool _belowValid, int2 _belowIndex, bool _leftValid, int2 _leftIndex, bool _rightValid, int2 _rightIndex, bool _aboveValid, int2 _aboveIndex)
+        private void DistributeOverflow(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)
         {
-            var cell = GetCell(_index);
-            float overFullness = cell.m_amount - 1f;
+            float overFullness = _cell.m_amount - 1f;
             if (overFullness <= 0f)
                 return;
+            var type = _cell.m_type;
             int factors = 0;
             float downPull = 0f, leftPull = 0f, rightPull = 0f, upPull = 0f;
-            if (_belowValid)
+            if (!_below.IsNull)
             {
-                var below = GetCell(_belowIndex);
-                var belowOverfullness = math.max(0f, GetFullness(cell.m_type, below) - 1f);
+                var belowOverfullness = math.max(0f, GetFullness(type, _below) - 1f);
                 downPull = (overFullness - belowOverfullness) * 0.5f;
-                _belowValid = downPull > 0;
-                if (_belowValid)
+                if (downPull > 0f)
                     factors++;
             }
-            if (_leftValid)
+            if (!_left.IsNull)
             {
-                var left = GetCell(_leftIndex);
-                var leftOverfullness = math.max(0f, GetFullness(cell.m_type, left) - 1f);
+                var leftOverfullness = math.max(0f, GetFullness(type, _left) - 1f);
                 leftPull = (overFullness - leftOverfullness) * 0.5f;
-                _leftValid = leftPull > 0;
-                if (_leftValid)
+                if (leftPull > 0f)
                     factors++;
             }
-            if (_rightValid)
+            if (!_right.IsNull)
             {
-                var right = GetCell(_rightIndex);
-                var rightOverfullness = math.max(0f, GetFullness(cell.m_type, right) - 1f);
+                var rightOverfullness = math.max(0f, GetFullness(type, _right) - 1f);
                 rightPull = (overFullness - rightOverfullness) * 0.5f;
-                _rightValid = rightPull > 0;
-                if (_rightValid)
+                if (rightPull > 0f)
                     factors++;
             }
-            if (_aboveValid)
+            if (!_above.IsNull)
             {
-                var above = GetCell(_aboveIndex);
-                var aboveOverfullness = math.max(0f, GetFullness(cell.m_type, above) - 1f);
+                var aboveOverfullness = math.max(0f, GetFullness(type, _above) - 1f);
                 upPull = (overFullness - aboveOverfullness) * 0.5f;
-                _aboveValid = upPull > 0;
-                if (_aboveValid)
+                if (upPull > 0f)
                     factors++;
             }
             if (factors == 0)
                 return;
-            if (_belowValid)
-                Transfer(_index, _belowIndex, cell.m_type, downPull / factors, new float2(0f, -1f));
-            if (_leftValid)
-                Transfer(_index, _leftIndex, cell.m_type, leftPull / factors, new float2(-1f, 0f));
-            if (_rightValid)
-                Transfer(_index, _rightIndex, cell.m_type, rightPull / factors, new float2(1f, 0f));
-            if (_aboveValid)
-                Transfer(_index, _aboveIndex, cell.m_type, upPull / factors, new float2(0f, 1f));
+            if (downPull > 0f)
+                Transfer(ref _cell, ref _below, downPull / factors);
+            if (leftPull > 0f)
+                Transfer(ref _cell, ref _left, leftPull / factors);
+            if (rightPull > 0f)
+                Transfer(ref _cell, ref _right, rightPull / factors);
+            if (upPull > 0f)
+                Transfer(ref _cell, ref _above, upPull / factors);
         }
-
-        private Cell GetCell(int2 _index) => m_cells[_index.x + _index.y * m_width];
-        private void SetCell(int2 _index, Cell _cell) => m_cells[_index.x + _index.y * m_width] = _cell;
         
-        private float GetFullness(Cell.Type _type, Cell _other)
-        {
-            if (_other.m_type == Cell.Type.Empty)
-                return 0f;
-            return _other.m_type != _type ? float.PositiveInfinity : _other.m_amount;
-        }
+        private ref Cell GetCell(int2 _index) => ref m_cells.RefAt(_index.x + _index.y * m_width);
 
-        private void Transfer(int2 _index1, int2 _index2, Cell.Type _type, float _amount, float2 _velocity)
+        private ref Cell GetCellChecked (int2 _index)
         {
-            if (_amount <= 0f)
-                return;
-            
-            RemoveFromCell(_index1, _amount, _velocity);
-            AddToCell(_index2, _type, _amount, _velocity);
+            var indexValid = _index.x >= 0 && _index.x < m_width && _index.y >= 0 && _index.y < m_height;
+            return ref m_cells.RefAt(indexValid ? _index.x + _index.y * m_width : m_cells.Length - 1); //Last cell is null
         }
+        
+        private float GetFullness(Cell.Type _type, Cell _other) => math.select(math.select(float.PositiveInfinity, _other.m_amount, _other.m_type == _type), 0f, _other.m_type == Cell.Type.Empty); //Longer lines are better right?
 
-        private void AddToCell(int2 _index, Cell.Type _type, float _amount, float2 _velocity)
+        private void Transfer(ref Cell _cellFrom, ref Cell _cellTo, float _amount)
         {
-            var cell = GetCell(_index);
-            var wasLiquid = cell.IsLiquid(m_cellProperties);
-            cell = cell.Add(_type, _amount, -_velocity);
-            var isLiquid = cell.IsLiquid(m_cellProperties);
-            if (isLiquid && !wasLiquid)
-                m_fluidCells.Add(_index);
-            SetCell(_index, cell);
-        }
-
-        private void RemoveFromCell(int2 _index, float _amount, float2 _velocity)
-        {
-            var cell = GetCell(_index);
-            var wasLiquid = cell.IsLiquid(m_cellProperties);
-            cell = cell.Remove(_amount, _velocity);
-            var isLiquid = cell.IsLiquid(m_cellProperties);
-            if (wasLiquid && !isLiquid)
-                m_fluidCells.Remove(_index);
-            SetCell(_index, cell);
+            _cellTo.Add(_cellFrom.m_type, _amount);
+            _cellFrom.Remove(_amount);
         }
     }
 
