@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -143,5 +144,12 @@ public class Manager : MonoBehaviour
         foreach (var (pos, cell) in m_addIntoGridList)
             GridHandler.Me.AddIntoGrid(pos, cell);
         m_addIntoGridList.Clear();
+    }
+
+    public void Save(string _saveLocation)
+    {
+        var bytes = GridHandler.Me.GetTextureData();
+        System.IO.File.WriteAllBytes(_saveLocation, bytes);
+        AssetDatabase.Refresh();
     }
 }

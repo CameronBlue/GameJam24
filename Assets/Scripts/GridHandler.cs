@@ -246,7 +246,7 @@ public class GridHandler : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
         {
             var cell = m_cells[index.x + index.y * m_levelWidth];
-            Debug.LogError($"Clicked on {index} which is {cell.m_type} with {cell.m_amount}. Is registered: {m_fluidCells.Contains(index)}");
+            Debug.Log($"Clicked on {index} which is {cell.m_type} with {cell.m_amount}. Is registered: {m_fluidCells.Contains(index)}");
         }
         return GetPosition(new(index.x, index.y));
     }
@@ -256,6 +256,11 @@ public class GridHandler : MonoBehaviour
         var job = new RenderJob(m_cells, m_cellPropertiesNative, m_levelWidth, m_levelHeight);
         job.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
         job.SetTexture(m_textureHolder);
+    }
+
+    public byte[] GetTextureData()
+    {
+        return m_textureHolder.EncodeToPNG();
     }
 
     [BurstCompile]
@@ -774,7 +779,7 @@ public class GridHandler : MonoBehaviour
                 return;
             Transfer(ref _cell, ref _other, math.min(space, amount));
         }
-
+        
         private void UpdateAuxilliaryDirs(ref Cell _cell, ref Cell _dir1, ref Cell _dir2)
         {
             var amount = _cell.m_amount;
