@@ -745,6 +745,21 @@ MonoBehaviour:
     heat: 0
     flammability: 0
     crystallisable: 0
+  - type: 10
+    colour:
+      serializedVersion: 2
+      rgba: 4294967040
+    colour2:
+      serializedVersion: 2
+      rgba: 4294942976
+    weight: 0
+    edgeNeedsEmpty: 1
+    viscosity: 0.3
+    corrosivity: 0
+    corrodability: 1
+    heat: 0
+    flammability: 1
+    crystallisable: 0
   m_image: {fileID: 1952815454}
   m_background: {fileID: 1912682876}
   m_level: {fileID: 2800000, guid: 9484ddd525518264b8d2972870061dad, type: 3}
@@ -979,7 +994,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1799069818}
   - component: {fileID: 1799069817}
-  - component: {fileID: 1799069816}
   - component: {fileID: 1799069815}
   m_Layer: 0
   m_Name: UICam
@@ -1032,14 +1046,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!81 &1799069816
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1799069814}
-  m_Enabled: 1
 --- !u!20 &1799069817
 Camera:
   m_ObjectHideFlags: 0
@@ -1270,7 +1276,7 @@ RectTransform:
   m_GameObject: {fileID: 1912682875}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 1}
-  m_LocalScale: {x: 4, y: 4, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 863852557}

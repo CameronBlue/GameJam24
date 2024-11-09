@@ -24,6 +24,7 @@ public class Potion : MonoBehaviour
         _force = _force.Rotate(Random.Range(-2f, 2f));
         _force *= Random.Range(0.98f, 1.02f);
         m_rb.AddForce(_force, ForceMode2D.Impulse);
+        m_rb.angularVelocity = _force.x * 180f;
     }
 
     private void FixedUpdate()

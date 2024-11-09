@@ -33,6 +33,7 @@ public class GridHandler : MonoBehaviour
             Platform,
             Acid,
             Gas,
+            Slime,
             Null //A real cell should never be this type 
         }
         
@@ -455,6 +456,7 @@ public class GridHandler : MonoBehaviour
         [ReadOnly] private Cell m_cell;
         [ReadOnly] private int m_x, m_y;
         [ReadOnly] private int m_width, m_height;
+        [ReadOnly] private bool m_replaceMode;
         private NativeHashSet<int2> m_searchedCells;
 
         public AddIntoGridJob(NativeArray<Cell> _cells, NativeHashSet<int2> _fluidCells, NativeArray<CellProperties> _properties, Cell _cell, int _x, int _y, int _width, int _height)
@@ -469,6 +471,7 @@ public class GridHandler : MonoBehaviour
             m_y = _y;
             m_width = _width;
             m_height = _height;
+            m_replaceMode = _cell.IsType(Cell.Type.Slime) || _cell.IsType(Cell.Type.Fire);
         }
 
         public void Execute()
@@ -480,14 +483,14 @@ public class GridHandler : MonoBehaviour
         {
             m_searchedCells.Add(_pos);
             ref Cell cell = ref m_cells.RefAt(_pos.x + _pos.y * m_width);
-            var wasEmpty = cell.m_type == Cell.Type.Empty;
-            var canAdd = cell.IsEmpty || cell.IsType(m_cell.m_type);
-            var hasRoom = cell.IsFluid(m_cellProperties, true) || cell.m_amount < 1f;
+            var canAdd = m_replaceMode ? !cell.IsEmpty && !cell.IsNull && !cell.IsType(m_cell.m_type) : cell.IsEmpty || cell.IsType(m_cell.m_type);
+            var hasRoom = m_replaceMode || cell.IsFluid(m_cellProperties, true) || cell.m_amount < 1f;
             if (canAdd && hasRoom)
             {
+                var wasFluid = cell.IsFluid(m_cellProperties, false);
                 cell.Add(m_cell.m_type, m_cell.m_amount);
                 var isFluid = cell.IsFluid(m_cellProperties, false);
-                if (isFluid && wasEmpty)
+                if (isFluid && !wasFluid)
                     m_fluidCells.Add(_pos);
                 return true;
             }
@@ -607,6 +610,7 @@ public class GridHandler : MonoBehaviour
         
         private void ActuallyUpdateCell(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)
         {
+            UpdateSlime(ref _cell, ref _below, ref _left, ref _right, ref _above);
             UpdateDecay(ref _cell);
             UpdateBurning(ref _cell, ref _below, ref _left, ref _right, ref _above);
             UpdateCorrosion(ref _cell, ref _below, ref _left, ref _right, ref _above);
@@ -625,6 +629,35 @@ public class GridHandler : MonoBehaviour
                 UpdateAuxilliaryDirs(ref _cell, ref _left, ref _right);
             }
             DistributeOverflow(ref _cell, ref _below, ref _left, ref _right, ref _above);
+        }
+
+        private void UpdateSlime(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)
+        {
+            if (!_cell.IsType(Cell.Type.Slime))
+                return;
+            
+            var aboveIsAir = _above.IsEmpty;
+            var belowIsAir = _below.IsEmpty;
+            var leftIsAir = _left.IsEmpty;
+            var rightIsAir = _right.IsEmpty;
+
+            if (aboveIsAir || belowIsAir)
+            {
+                if (!_left.IsNull && !leftIsAir)
+                    _left.m_type = Cell.Type.Slime;
+                if (!_right.IsNull && !rightIsAir)
+                    _right.m_type = Cell.Type.Slime;
+            }
+            
+            if (leftIsAir || rightIsAir)
+            {
+                if (!_above.IsNull && !aboveIsAir)
+                    _above.m_type = Cell.Type.Slime;
+                if (!_below.IsNull && !belowIsAir)
+                    _below.m_type = Cell.Type.Slime;
+            }
+
+            _cell.m_crystallised = true;
         }
 
         private void UpdateDecay(ref Cell _cell)
