@@ -59,10 +59,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 370297921add3ce42b13b94b7ba55875, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_selectedSprite: {fileID: 7482667652216324306, guid: 5554a0033bdb103419f1447cbb99b246, type: 3}
-  m_unselectedSprite: {fileID: 21300000, guid: a5579a39c40e16d46ad0a53aa77d9f41, type: 3}
-  m_background: {fileID: 2024324689260101001}
-  m_potionImage: {fileID: 4111590476266364584}
+  selectedSprite: {fileID: 7482667652216324306, guid: 5554a0033bdb103419f1447cbb99b246, type: 3}
+  unselectedSprite: {fileID: 21300000, guid: a5579a39c40e16d46ad0a53aa77d9f41, type: 3}
+  background: {fileID: 2024324689260101001}
+  potionImage: {fileID: 4111590476266364584}
   isEmpty: 0
   m_type: 0
   isSelected: 0

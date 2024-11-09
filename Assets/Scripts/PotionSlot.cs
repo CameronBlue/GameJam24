@@ -3,10 +3,10 @@ using UnityEngine.UI;
 
 public class PotionSlot : MonoBehaviour
 {
-    [SerializeField] private Sprite m_selectedSprite;
-    [SerializeField] private Sprite m_unselectedSprite;
-    [SerializeField] public Image m_background;
-    [SerializeField] public Image m_potionImage;
+    [SerializeField] private Sprite selectedSprite;
+    [SerializeField] private Sprite unselectedSprite;
+    [SerializeField] public Image background;
+    [SerializeField] public Image potionImage;
 
     [HideInInspector] public bool isEmpty;
     [HideInInspector] public GridHandler.Cell.Type m_type;
@@ -28,7 +28,7 @@ public class PotionSlot : MonoBehaviour
     public void SwitchSelected()
     {
         isSelected = !isSelected;
-        m_background.sprite = isSelected ? m_selectedSprite : m_unselectedSprite;
+        background.sprite = isSelected ? selectedSprite : unselectedSprite;
     }
 
     

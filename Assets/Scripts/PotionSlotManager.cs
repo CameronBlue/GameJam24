@@ -1,9 +1,18 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PotionSlotManager : MonoBehaviour
 {
     private PotionSlot[] potionSlots;
     private int currentSelection;
+
+    [SerializeField] private Sprite acidIcon;
+    [SerializeField] private Sprite fireIcon;
+    [SerializeField] private Sprite bounceIcon;
+    [SerializeField] private Sprite platformIcon;
+    [SerializeField] private Sprite gasIcon;
+    [SerializeField] private Sprite slimeIcon;
+    
     
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -11,8 +20,11 @@ public class PotionSlotManager : MonoBehaviour
     {
         currentSelection = 0;
         potionSlots = GetComponentsInChildren<PotionSlot>();
-        print(potionSlots.Length);
         potionSlots[currentSelection].SwitchSelected();
+
+        potionSlots[0].m_type = GridHandler.Cell.Type.Acid;
+        potionSlots[0].potionImage.sprite = acidIcon;
+
     }
 
     // Update is called once per frame
@@ -20,7 +32,6 @@ public class PotionSlotManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            print("q pressed");
             if (currentSelection != 0)
             {
                 potionSlots[currentSelection].SwitchSelected();
@@ -28,9 +39,9 @@ public class PotionSlotManager : MonoBehaviour
                 potionSlots[currentSelection].SwitchSelected();
             }
         }
+
         if (Input.GetKeyDown(KeyCode.E))
         {
-            print("e pressed");
             if (currentSelection != potionSlots.Length - 1)
             {
                 potionSlots[currentSelection].SwitchSelected();
@@ -38,6 +49,5 @@ public class PotionSlotManager : MonoBehaviour
                 potionSlots[currentSelection].SwitchSelected();
             }
         }
-        print(currentSelection);
     }
 }
