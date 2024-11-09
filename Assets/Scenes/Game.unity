@@ -393,7 +393,7 @@ MonoBehaviour:
   m_anim: {fileID: 170300172}
   m_rb: {fileID: 170300167}
   m_customColl: {fileID: 170300169}
-  m_potionNum: 0
+  m_potionType: 0
 --- !u!114 &170300169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -882,6 +882,17 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1275853185 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8746665998702895023, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+  m_PrefabInstance: {fileID: 1812396365}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1389914671
 GameObject:
   m_ObjectHideFlags: 0
@@ -1103,6 +1114,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1782736818}
     m_Modifications:
+    - target: {fileID: 3378594924300080311, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+      propertyPath: gasIcon
+      value: 
+      objectReference: {fileID: 21300000, guid: 61672d59c6cd4b240859721b784bd128, type: 3}
+    - target: {fileID: 3378594924300080311, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+      propertyPath: acidIcon
+      value: 
+      objectReference: {fileID: 21300000, guid: ab04ac561c2dd4943b2ecbd202df429d, type: 3}
+    - target: {fileID: 3378594924300080311, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+      propertyPath: fireIcon
+      value: 
+      objectReference: {fileID: 21300000, guid: ac8d2bb66d7662a44a3235b1dc87c626, type: 3}
+    - target: {fileID: 3378594924300080311, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+      propertyPath: slimeIcon
+      value: 
+      objectReference: {fileID: 21300000, guid: 5678dfaf2fa3a2a4aacae59df8350432, type: 3}
+    - target: {fileID: 3378594924300080311, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+      propertyPath: bounceIcon
+      value: 
+      objectReference: {fileID: 21300000, guid: 9c39a61127a5e4e49aef2019d32028a0, type: 3}
+    - target: {fileID: 3378594924300080311, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+      propertyPath: platformIcon
+      value: 
+      objectReference: {fileID: 21300000, guid: 20733eb1c5f9c3e49b1d6cf60949ce5e, type: 3}
     - target: {fileID: 3397745990823031087, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1187,6 +1222,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Potion Slots
       objectReference: {fileID: 0}
+    - target: {fileID: 4463876861839863391, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+      propertyPath: background
+      value: 
+      objectReference: {fileID: 1275853185}
+    - target: {fileID: 4463876861839863391, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+      propertyPath: potionImage
+      value: 
+      objectReference: {fileID: 2015853982}
+    - target: {fileID: 4463876861839863391, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+      propertyPath: selectedSprite
+      value: 
+      objectReference: {fileID: 7482667652216324306, guid: 5554a0033bdb103419f1447cbb99b246, type: 3}
+    - target: {fileID: 4463876861839863391, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+      propertyPath: unselectedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a5579a39c40e16d46ad0a53aa77d9f41, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1415,6 +1466,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1952815453}
   m_CullTransparentMesh: 1
+--- !u!114 &2015853982 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5156495533108048216, guid: 7d9c5251069a10a48844b0c23e81d776, type: 3}
+  m_PrefabInstance: {fileID: 1812396365}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
