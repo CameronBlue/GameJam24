@@ -23,7 +23,8 @@ public class Character : MonoBehaviour
     [SerializeField]
     private CustomCollider m_customColl;
 
-    public int m_potionNum;
+    //public int m_potionNum;
+    public GridHandler.Cell.Type m_potionType;
     
     private void Awake()
     {
@@ -42,16 +43,7 @@ public class Character : MonoBehaviour
     {
         UpdateAnimator();
         UpdateGun();
-        
-        for (int i = 0; i <= 9; ++i)
-        {
-            if (Input.GetKeyDown(KeyCode.Alpha0 + i))
-            {
-                m_potionNum = i + 1;
-                break;
-            }
-        }
-        
+
     }
     
     private void UpdateAnimator()
@@ -73,10 +65,12 @@ public class Character : MonoBehaviour
 
     private void Shoot(Vector3 _target)
     {
-        var startPos = (Vector2)transform.position + Vector2.up * 0.5f;
+        var startPos = (Vector2)transform.position;
         var force = Utility.GetForceForPosition(startPos, _target, 10f);
         var potion = Instantiate(m_PotionPrefab, startPos, Quaternion.identity);
-        potion.Init(force, 250, (GridHandler.Cell.Type)m_potionNum);
+        var actual_force = force + m_rb.linearVelocity;
+        
+        potion.Init(actual_force, 250, m_potionType);
     }
     
     private void FixedUpdate()

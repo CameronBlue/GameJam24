@@ -24,6 +24,14 @@ public class PotionSlotManager : MonoBehaviour
 
         potionSlots[0].m_type = GridHandler.Cell.Type.Acid;
         potionSlots[0].potionImage.sprite = acidIcon;
+        potionSlots[1].m_type = GridHandler.Cell.Type.Fire;
+        potionSlots[1].potionImage.sprite = fireIcon;
+        potionSlots[2].m_type = GridHandler.Cell.Type.Platform;
+        potionSlots[2].potionImage.sprite = platformIcon;
+        potionSlots[3].m_type = GridHandler.Cell.Type.Gas;
+        potionSlots[3].potionImage.sprite = gasIcon;
+        
+        
 
     }
 
@@ -37,6 +45,7 @@ public class PotionSlotManager : MonoBehaviour
                 potionSlots[currentSelection].SwitchSelected();
                 currentSelection--;
                 potionSlots[currentSelection].SwitchSelected();
+                Character.Me.m_potionType = potionSlots[currentSelection].m_type;
             }
         }
 
@@ -47,6 +56,7 @@ public class PotionSlotManager : MonoBehaviour
                 potionSlots[currentSelection].SwitchSelected();
                 currentSelection++;
                 potionSlots[currentSelection].SwitchSelected();
+                Character.Me.m_potionType = potionSlots[currentSelection].m_type;
             }
         }
     }
