@@ -9,7 +9,8 @@ public class Potion : MonoBehaviour
     [SerializeField] private CustomCollider m_customColl;
     [SerializeField] private CustomBounds m_bounds;
     [SerializeField] private Rigidbody2D m_rb;
-    [SerializeField] private SpriteRenderer m_contents;
+    [SerializeField] private SpriteRenderer m_contentsA;
+    [SerializeField] private SpriteRenderer m_contentsB;
     private int m_capacity;
     private Vector2 _prevVelocity;
     private GridHandler.Cell.Type m_type;
@@ -18,7 +19,8 @@ public class Potion : MonoBehaviour
     {
         m_capacity = _capacity;
         m_type = _type;
-        m_contents.color = GridHandler.Me.GetProperties(_type).colour;
+        m_contentsA.color = GridHandler.Me.GetProperties(_type).colour;
+        m_contentsB.color = GridHandler.Me.GetProperties(_type).colour2;
         _force = _force.Rotate(Random.Range(-2f, 2f));
         _force *= Random.Range(0.98f, 1.02f);
         m_rb.AddForce(_force, ForceMode2D.Impulse);

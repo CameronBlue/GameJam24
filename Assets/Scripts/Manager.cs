@@ -2,16 +2,21 @@ using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
+    public const float c_ParallaxConst = -25/16f;
+    public const float c_ParallaxStrength = 0.9f * c_ParallaxConst;
     public const float c_ImageScale = 4f;
     public const float c_CellDiameter = c_ImageScale * 0.01f;
     public const float c_CellRadius = c_CellDiameter * 0.5f;
     
     public static Manager Me;
     
+    public RawImage m_background;
     public Transform m_fluidPixelHolder;
+    public Transform m_character;
     
     private List<CustomCollider> m_colliderUpdateList = new();
     private List<(Vector2, GridHandler.Cell)> m_addIntoGridList = new(); 
@@ -94,6 +99,8 @@ public class Manager : MonoBehaviour
         GridHandler.Me.CompleteFluidUpdate();
         RunAllCollisions();
         GridHandler.Me.RenderTiles();
+        
+        m_background.material.SetVector("_Parallax", c_ParallaxStrength * Camera.main.transform.position);
         
 #if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.P))
