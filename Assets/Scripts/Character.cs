@@ -6,6 +6,8 @@ using UnityEngine.Serialization;
 public class Character : MonoBehaviour
 {
     private const float c_CameraTightness = 0.2f;
+
+    public static Character Me;
     
     public Potion m_PotionPrefab;
     
@@ -23,6 +25,11 @@ public class Character : MonoBehaviour
 
     public int m_potionNum;
     
+    private void Awake()
+    {
+        Me = this;
+    }
+
     private void Start()
     {
         transform.position = GridHandler.Me.GetSpawnPoint();
