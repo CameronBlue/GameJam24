@@ -31,7 +31,8 @@ public class PotionSlotManager : MonoBehaviour
         potionSlots[3].m_type = GridHandler.Cell.Type.Gas;
         potionSlots[3].potionImage.sprite = gasIcon;
         
-        
+                
+        Character.Me.m_potionType = potionSlots[currentSelection].m_type;
 
     }
 

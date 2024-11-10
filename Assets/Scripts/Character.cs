@@ -22,9 +22,13 @@ public class Character : MonoBehaviour
     private Rigidbody2D m_rb;
     [SerializeField]
     private CustomCollider m_customColl;
-
+    
     //public int m_potionNum;
     public GridHandler.Cell.Type m_potionType;
+    
+    public PlayerInventory inventory;
+    
+    [SerializeField] private GameObject m_potionCombiner;
     
     private void Awake()
     {
@@ -42,14 +46,24 @@ public class Character : MonoBehaviour
     private void Update()
     {
         UpdateAnimator();
-        UpdateGun();
 
+        if (!m_potionCombiner.activeSelf)
+        {
+            UpdateGun();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            m_potionCombiner.SetActive(!m_potionCombiner.activeSelf);
+        }
+        
+        
     }
     
     private void UpdateAnimator()
     {
         var xVel = m_rb.linearVelocity.x;
-        m_sr.flipX = xVel < 0;
+        m_sr.flipX = xVel < 0.1f;
         var speed = Mathf.Abs(xVel);
         m_anim.SetFloat("Speed", speed);
         m_anim.SetBool("Moving", speed > 0.1f);
