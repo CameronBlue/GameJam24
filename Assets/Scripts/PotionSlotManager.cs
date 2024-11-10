@@ -1,64 +1,60 @@
+using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class PotionSlotManager : MonoBehaviour
 {
-    private PotionSlot[] potionSlots;
-    private int currentSelection;
-
-    [SerializeField] private Sprite acidIcon;
-    [SerializeField] private Sprite fireIcon;
-    [SerializeField] private Sprite bounceIcon;
-    [SerializeField] private Sprite platformIcon;
-    [SerializeField] private Sprite gasIcon;
-    [SerializeField] private Sprite slimeIcon;
-    
-    
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Serializable]
+    public struct PotionSlot
     {
-        currentSelection = 0;
-        potionSlots = GetComponentsInChildren<PotionSlot>();
-        potionSlots[currentSelection].SwitchSelected();
+        public Sprite largeSprite;
+        public Sprite smallSprite;
+        [FormerlySerializedAs("m_type")] public GridHandler.Cell.Type type;
+    }
+    
+    [SerializeField] private Image largeImage;
+    [SerializeField] private Image smallImageLeft;
+    [SerializeField] private Image smallImageRight;
+    [SerializeField] private PotionSlot[] potionSlots;
+    private int currentSelection = 0;
 
-        potionSlots[0].m_type = GridHandler.Cell.Type.Acid;
-        potionSlots[0].potionImage.sprite = acidIcon;
-        potionSlots[1].m_type = GridHandler.Cell.Type.Fire;
-        potionSlots[1].potionImage.sprite = fireIcon;
-        potionSlots[2].m_type = GridHandler.Cell.Type.Platform;
-        potionSlots[2].potionImage.sprite = platformIcon;
-        potionSlots[3].m_type = GridHandler.Cell.Type.Gas;
-        potionSlots[3].potionImage.sprite = gasIcon;
-        
-                
-        Character.Me.m_potionType = potionSlots[currentSelection].m_type;
-
+    private void Start()
+    {
+        UpdateSelection();
     }
 
-    // Update is called once per frame
     void Update()
     {
+        bool changed = false;
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            if (currentSelection != 0)
-            {
-                potionSlots[currentSelection].SwitchSelected();
-                currentSelection--;
-                potionSlots[currentSelection].SwitchSelected();
-                Character.Me.m_potionType = potionSlots[currentSelection].m_type;
-            }
+            currentSelection--;
+            changed = true;
         }
-
-        if (Input.GetKeyDown(KeyCode.E))
+        else if (Input.GetKeyDown(KeyCode.E))
         {
-            if (currentSelection != potionSlots.Length - 1)
-            {
-                potionSlots[currentSelection].SwitchSelected();
-                currentSelection++;
-                potionSlots[currentSelection].SwitchSelected();
-                Character.Me.m_potionType = potionSlots[currentSelection].m_type;
-            }
+            currentSelection++;
+            changed = true;
         }
+        if (!changed) 
+            return;
+        
+        UpdateSelection();
+    }
+    
+    private void UpdateSelection()
+    {
+        currentSelection = Mod(currentSelection, potionSlots.Length);
+        Character.Me.m_potionType = potionSlots[currentSelection].type;
+        
+        largeImage.sprite = potionSlots[currentSelection].largeSprite;
+        smallImageLeft.sprite = potionSlots[Mod(currentSelection - 1, potionSlots.Length)].smallSprite;
+        smallImageRight.sprite = potionSlots[Mod(currentSelection + 1, potionSlots.Length)].smallSprite;
+    }
+
+    private int Mod(int x, int y)
+    {
+        return (x < 0) ? (y - (-x % y)) : (x % y);
     }
 }
