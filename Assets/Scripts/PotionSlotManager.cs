@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class PotionSlotManager : MonoBehaviour
 {
+    public static PotionSlotManager Me;
+    
     [Serializable]
     public struct PotionSlot
     {
@@ -12,15 +15,29 @@ public class PotionSlotManager : MonoBehaviour
         public Sprite smallSprite;
         [FormerlySerializedAs("m_type")] public GridHandler.Cell.Type type;
     }
+    [SerializeField] private PotionSlot[] potionSlots;
     
     [SerializeField] private Image largeImage;
     [SerializeField] private Image smallImageLeft;
     [SerializeField] private Image smallImageRight;
-    [SerializeField] private PotionSlot[] potionSlots;
+    [SerializeField] private List<PotionSlot> currentPotionSlots;
     private int currentSelection = 0;
 
-    private void Start()
+    private void Awake()
     {
+        Me = this;
+    }
+
+    public void StartMe()
+    {
+        currentPotionSlots = new();
+        for (var i = 0; i < PlayerInventory.Me.potionQuantities.Length; i++)
+        {
+            var q = PlayerInventory.Me.potionQuantities[i];
+            if (q > 0)
+                currentPotionSlots.Add(potionSlots[i]);
+        }
+
         UpdateSelection();
     }
 
@@ -29,12 +46,12 @@ public class PotionSlotManager : MonoBehaviour
         bool changed = false;
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            currentSelection--;
+            currentSelection++;
             changed = true;
         }
         else if (Input.GetKeyDown(KeyCode.E))
         {
-            currentSelection++;
+            currentSelection--;
             changed = true;
         }
         if (!changed) 
@@ -42,19 +59,39 @@ public class PotionSlotManager : MonoBehaviour
         
         UpdateSelection();
     }
+
+    public void PotionTypeFinished(GridHandler.Cell.Type _type)
+    {
+        currentPotionSlots.RemoveAll(x => x.type == _type);
+        UpdateSelection();
+    }
     
     private void UpdateSelection()
     {
-        currentSelection = Mod(currentSelection, potionSlots.Length);
-        Character.Me.m_potionType = potionSlots[currentSelection].type;
+        if (currentPotionSlots.Count == 0)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
         
-        largeImage.sprite = potionSlots[currentSelection].largeSprite;
-        smallImageLeft.sprite = potionSlots[Mod(currentSelection - 1, potionSlots.Length)].smallSprite;
-        smallImageRight.sprite = potionSlots[Mod(currentSelection + 1, potionSlots.Length)].smallSprite;
+        currentSelection = Mod(currentSelection);
+        Character.Me.m_potionType = currentPotionSlots[currentSelection].type;
+        largeImage.sprite = currentPotionSlots[currentSelection].largeSprite;
+        
+        if (currentPotionSlots.Count <= 1)
+        {
+            smallImageLeft.gameObject.SetActive(false);
+            smallImageRight.gameObject.SetActive(false);
+            return;
+        }
+
+        smallImageLeft.sprite = currentPotionSlots[Mod(currentSelection - 1)].smallSprite;
+        smallImageRight.sprite = currentPotionSlots[Mod(currentSelection + 1)].smallSprite;
     }
 
-    private int Mod(int x, int y)
+    private int Mod(int x)
     {
+        int y = currentPotionSlots.Count;
         return (x < 0) ? (y - (-x % y)) : (x % y);
     }
 }

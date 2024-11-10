@@ -27,6 +27,13 @@ public class Manager : MonoBehaviour
         Me = this;
     }
 
+    private void Start()
+    {
+        PlayerInventory.Me.StartMe();
+        PotionCombiner.Me.StartMe();
+        PotionSlotManager.Me.StartMe();
+    }
+
     #region Gizmos
     private interface IGizmo { public void OnDraw(); }
     private class GizmoSquare : IGizmo

@@ -23,10 +23,7 @@ public class Character : MonoBehaviour
     [SerializeField]
     private CustomCollider m_customColl;
     
-    //public int m_potionNum;
     public GridHandler.Cell.Type m_potionType;
-    
-    public PlayerInventory inventory;
     
     [SerializeField] private GameObject m_potionCombiner;
     
@@ -54,10 +51,10 @@ public class Character : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F))
         {
-            m_potionCombiner.SetActive(!m_potionCombiner.activeSelf);
+            var currentlyActive = m_potionCombiner.activeSelf;
+            m_potionCombiner.SetActive(!currentlyActive);
+            Time.timeScale = currentlyActive ? 1f : 0f;
         }
-        
-        
     }
     
     private void UpdateAnimator()
@@ -81,10 +78,11 @@ public class Character : MonoBehaviour
     {
         var startPos = (Vector2)transform.position;
         var force = Utility.GetForceForPosition(startPos, _target, 10f);
-        var potion = Instantiate(m_PotionPrefab, startPos, Quaternion.identity);
         var actual_force = force + m_rb.linearVelocity;
-        
+        var potion = Instantiate(m_PotionPrefab, startPos, Quaternion.identity);
         potion.Init(actual_force, 250, m_potionType);
+        
+        PlayerInventory.Me.RemovePotion(m_potionType);
     }
     
     private void FixedUpdate()

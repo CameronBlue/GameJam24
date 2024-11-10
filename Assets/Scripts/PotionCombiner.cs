@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class PotionCombiner : MonoBehaviour
 {
+    public static PotionCombiner Me;
     
     public PotionCombinerSlot acidSlot;
     public PotionCombinerSlot fireSlot;
@@ -22,14 +24,18 @@ public class PotionCombiner : MonoBehaviour
     
     [SerializeField] private Image ingredient1;
     [SerializeField] private Image ingredient2;
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    private void Awake()
+    {
+        Me = this;
+    }
+
+    public void StartMe()
     {
         
         potionIcons = new [] { acidIcon, fireIcon, platformIcon, gasIcon, slimeIcon, bounceIcon };
         
-        PlayerInventory inv = Character.Me.inventory;
+        PlayerInventory inv = PlayerInventory.Me;
         acidSlot.slotSprite = acidIcon;
         acidSlot.slotType = inv.inventoryTypeReference[PlayerInventory.ACID_INV_REF];
         
@@ -42,10 +48,10 @@ public class PotionCombiner : MonoBehaviour
         gasSlot.slotType = inv.inventoryTypeReference[PlayerInventory.GAS_INV_REF];
         
         slimeSlot.slotSprite = slimeIcon;
-        //slimeSlot.slotType = inv.inventoryTypeReference[PlayerInventory.SLIME_INV_REF];
+        slimeSlot.slotType = inv.inventoryTypeReference[PlayerInventory.SLIME_INV_REF];
         
         bounceSlot.slotSprite = bounceIcon;
-        //bounceSlot.slotType = inv.inventoryTypeReference[PlayerInventory.BOUNCE_INV_REF];
+        bounceSlot.slotType = inv.inventoryTypeReference[PlayerInventory.BOUNCE_INV_REF];
         
         UpdateSlotNumbers();
         
@@ -93,24 +99,24 @@ public class PotionCombiner : MonoBehaviour
 
     public void onCombinePressed ()
     {
-        if (ingredient1full && ingredient2full && Character.Me.inventory.potionQuantities[ingredient1contents] > 0 && Character.Me.inventory.potionQuantities[ingredient2contents] > 0)
+        if (ingredient1full && ingredient2full && PlayerInventory.Me.potionQuantities[ingredient1contents] > 0 && PlayerInventory.Me.potionQuantities[ingredient2contents] > 0)
         {
-            Character.Me.inventory.potionQuantities[ingredient1contents] -= 1;
-            Character.Me.inventory.potionQuantities[ingredient2contents] -= 1;
+            PlayerInventory.Me.potionQuantities[ingredient1contents] -= 1;
+            PlayerInventory.Me.potionQuantities[ingredient2contents] -= 1;
             
-            Character.Me.inventory.potionQuantities[CombinePotions(ingredient1contents, ingredient2contents)] += 1;
+            PlayerInventory.Me.potionQuantities[CombinePotions(ingredient1contents, ingredient2contents)] += 1;
         }
         UpdateSlotNumbers();
     }
 
     private void UpdateSlotNumbers()
     {
-        acidSlot.slotNumber = Character.Me.inventory.potionQuantities[PlayerInventory.ACID_INV_REF];
-        fireSlot.slotNumber = Character.Me.inventory.potionQuantities[PlayerInventory.FIRE_INV_REF];
-        platSlot.slotNumber = Character.Me.inventory.potionQuantities[PlayerInventory.PLAT_INV_REF];
-        gasSlot.slotNumber = Character.Me.inventory.potionQuantities[PlayerInventory.GAS_INV_REF];
-        slimeSlot.slotNumber = Character.Me.inventory.potionQuantities[PlayerInventory.SLIME_INV_REF];
-        bounceSlot.slotNumber = Character.Me.inventory.potionQuantities[PlayerInventory.BOUNCE_INV_REF];
+        acidSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.ACID_INV_REF];
+        fireSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.FIRE_INV_REF];
+        platSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.PLAT_INV_REF];
+        gasSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.GAS_INV_REF];
+        slimeSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.SLIME_INV_REF];
+        bounceSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.BOUNCE_INV_REF];
     }
     
     private int CombinePotions(int ingredient1, int ingredient2)

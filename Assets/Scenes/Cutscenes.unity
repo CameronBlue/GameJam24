@@ -285,12 +285,12 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 512
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: 100
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -316,7 +316,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 1, y: 0, z: 1, w: 0}
+  m_margin: {x: 0, y: 5, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -521,8 +521,22 @@ MonoBehaviour:
   m_text: {fileID: 423160874}
   cutscenes:
   - content:
-    - image: {fileID: 21300000, guid: 066d274f0902afa4d95f5a3c1ec55a3d, type: 3}
-      text: Nort bort\nFlobble fort
+    - image: {fileID: 21300000, guid: be388046f33cbba408b50c4390cf718a, type: 3}
+      text: My wife has been sick for so long...\nI became a witch to help her, but
+        the College of Mages didn't accept me.
+    - image: {fileID: 0}
+      text: They're the only ones with access to the cure spell. So I had to take
+        matters into my own hands...
+    - image: {fileID: 21300000, guid: 8a527bf6407e24148bdf7f1b07b1bac2, type: 3}
+      text: You should have considered the consequences before trying to steal from
+        the College!
+    - image: {fileID: 21300000, guid: e0a337ed7fd65e542a451e78e3fa4650, type: 3}
+      text: Good luck getting out of here, witch. With that rune, you'll never be
+        able to do magic ever again.
+    - image: {fileID: 21300000, guid: ffb6aa7aa8844ee43af45cd1fce617c1, type: 3}
+      text: I might not have my magic, but you know what I do have?
+    - image: {fileID: 21300000, guid: 6c00a82faf59b3f46b9e54b1bc339f04, type: 3}
+      text: My potions!
 --- !u!1 &1254326247
 GameObject:
   m_ObjectHideFlags: 0
