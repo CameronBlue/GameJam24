@@ -34,6 +34,7 @@ public class GridHandler : MonoBehaviour
             Acid,
             Gas,
             Slime,
+            Bounce,
             Null //A real cell should never be this type 
         }
         
@@ -67,6 +68,12 @@ public class GridHandler : MonoBehaviour
         {
             m_amount = 0f;
             m_type = Type.Empty;
+        }
+
+        public void Combust()
+        {
+            m_type = Type.Fire;
+            m_crystallised = false;
         }
     }
     
@@ -471,7 +478,7 @@ public class GridHandler : MonoBehaviour
             m_y = _y;
             m_width = _width;
             m_height = _height;
-            m_replaceMode = _cell.IsType(Cell.Type.Slime) || _cell.IsType(Cell.Type.Fire);
+            m_replaceMode = _cell.IsType(Cell.Type.Slime) || _cell.IsType(Cell.Type.Fire) || _cell.IsType(Cell.Type.Bounce);
         }
 
         public void Execute()
@@ -488,7 +495,10 @@ public class GridHandler : MonoBehaviour
             if (canAdd && hasRoom)
             {
                 var wasFluid = cell.IsFluid(m_cellProperties, false);
-                cell.Add(m_cell.m_type, m_cell.m_amount);
+                if (m_replaceMode)
+                    cell = m_cell;
+                else
+                    cell.Add(m_cell.m_type, m_cell.m_amount);
                 var isFluid = cell.IsFluid(m_cellProperties, false);
                 if (isFluid && !wasFluid)
                     m_fluidCells.Add(_pos);
@@ -541,7 +551,6 @@ public class GridHandler : MonoBehaviour
     {
         const float c_MinimumFlowThreshold = 0.01f;
         const float c_LateralDampeningFactor = 0.5f;
-        const float c_VelocityPull = 0.01f;
         
         private NativeArray<Cell> m_cells;
         private NativeHashSet<int2> m_fluidCells;
@@ -635,29 +644,25 @@ public class GridHandler : MonoBehaviour
         {
             if (!_cell.IsType(Cell.Type.Slime))
                 return;
-            
+
+            _cell.m_crystallised = true;
+
             var aboveIsAir = _above.IsEmpty;
             var belowIsAir = _below.IsEmpty;
             var leftIsAir = _left.IsEmpty;
             var rightIsAir = _right.IsEmpty;
-
-            if (aboveIsAir || belowIsAir)
-            {
-                if (!_left.IsNull && !leftIsAir)
-                    _left.m_type = Cell.Type.Slime;
-                if (!_right.IsNull && !rightIsAir)
-                    _right.m_type = Cell.Type.Slime;
-            }
+            var touchingAir = aboveIsAir || belowIsAir || leftIsAir || rightIsAir;
+            if (!touchingAir)
+                return;
             
-            if (leftIsAir || rightIsAir)
-            {
-                if (!_above.IsNull && !aboveIsAir)
-                    _above.m_type = Cell.Type.Slime;
-                if (!_below.IsNull && !belowIsAir)
-                    _below.m_type = Cell.Type.Slime;
-            }
-
-            _cell.m_crystallised = true;
+            if (!_left.IsNull && !leftIsAir)
+                _left.m_type = Cell.Type.Slime;
+            if (!_right.IsNull && !rightIsAir)
+                _right.m_type = Cell.Type.Slime;
+            if (!_above.IsNull && !aboveIsAir)
+                _above.m_type = Cell.Type.Slime;
+            if (!_below.IsNull && !belowIsAir)
+                _below.m_type = Cell.Type.Slime;
         }
 
         private void UpdateDecay(ref Cell _cell)
@@ -678,7 +683,7 @@ public class GridHandler : MonoBehaviour
             {
                 var p = m_cellProperties[(int)_below.m_type];
                 if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
-                    _below.m_type = Cell.Type.Fire;
+                    _below.Combust();
                 if (_below.IsEmpty)
                     ++airCount;
             }
@@ -686,7 +691,7 @@ public class GridHandler : MonoBehaviour
             {
                 var p = m_cellProperties[(int)_left.m_type];
                 if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
-                    _left.m_type = Cell.Type.Fire;
+                    _left.Combust();
                 if (_left.IsEmpty)
                     ++airCount;
             }
@@ -694,7 +699,7 @@ public class GridHandler : MonoBehaviour
             {
                 var p = m_cellProperties[(int)_right.m_type];
                 if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
-                    _right.m_type = Cell.Type.Fire;
+                    _right.Combust();
                 if (_right.IsEmpty)
                     ++airCount;
             }
@@ -702,7 +707,7 @@ public class GridHandler : MonoBehaviour
             {
                 var p = m_cellProperties[(int)_above.m_type];
                 if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
-                    _above.m_type = Cell.Type.Fire;
+                    _above.Combust();
                 if (_above.IsEmpty)
                     ++airCount;
             }
