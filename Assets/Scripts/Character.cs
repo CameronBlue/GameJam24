@@ -74,13 +74,12 @@ public class Character : MonoBehaviour
             Shoot(target);
     }
 
-    private void Shoot(Vector3 _target)
+    private void Shoot(Vector2 _target)
     {
         var startPos = (Vector2)transform.position;
-        var force = Utility.GetForceForPosition(startPos, _target, 10f);
-        var actual_force = force + m_rb.linearVelocity;
+        var force = (_target - startPos).normalized * 10f + m_rb.linearVelocity;
         var potion = Instantiate(m_PotionPrefab, startPos, Quaternion.identity);
-        potion.Init(actual_force, 250, m_potionType);
+        potion.Init(force, 250, m_potionType);
         
         PlayerInventory.Me.RemovePotion(m_potionType);
     }

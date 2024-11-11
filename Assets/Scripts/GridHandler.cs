@@ -81,6 +81,8 @@ public class GridHandler : MonoBehaviour
     { 
         [Tooltip("Please don't change this, I just couldn't find a way to lock it")]
         public Cell.Type type; //Only here for inspector
+        [Tooltip("How the potion breaks: 0=Square, 1=Perpendicular, 2=Parallel, 3=Parallel-Replace")]
+        public int potionStyle;
         [Tooltip("Only used for non-grid particles and potions")]
         public Color32 colour;
         [Tooltip("Only used for potions")] 
@@ -484,7 +486,7 @@ public class GridHandler : MonoBehaviour
             m_y = _y;
             m_width = _width;
             m_height = _height;
-            m_replaceMode = _cell.IsType(Cell.Type.Slime) || _cell.IsType(Cell.Type.Fire) || _cell.IsType(Cell.Type.Bounce);
+            m_replaceMode = _properties[(int)_cell.m_type].potionStyle == 3;
         }
 
         public void Execute()
