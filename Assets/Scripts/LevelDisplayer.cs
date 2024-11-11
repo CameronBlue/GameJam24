@@ -34,6 +34,6 @@ public class LevelDisplayer : MonoBehaviour
 
     public void SetLevel(LevelOption _level)
     {
-        SaveManager.Me.overrideLevel = m_levelDict[_level];
+        MainMenu.Me.SelectedLevel(m_levelDict[_level]);
     }
 }

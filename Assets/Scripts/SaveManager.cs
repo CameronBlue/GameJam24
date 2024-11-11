@@ -23,6 +23,8 @@ public class SaveManager : MonoBehaviour
     
     public Level[] m_levels;
     
+    public bool CanContinue => currentLevel > 0 && currentLevel < m_levels.Length;
+    
     private void Awake()
     {
         if (Me != null)
@@ -43,7 +45,9 @@ public class SaveManager : MonoBehaviour
 
     public int[] GetLevelPotions()
     {
-        return GetLevel().m_potions;
+        var copy = new int[6];
+        GetLevel().m_potions.CopyTo(copy, 0);
+        return copy;
     }
 
     private Level GetLevel()
@@ -53,7 +57,17 @@ public class SaveManager : MonoBehaviour
 
     public void LevelComplete()
     {
+        if (overrideLevel != -1)
+        {
+            SceneManager.LoadScene("Main Menu");
+            return;
+        }
         currentLevel++;
-        SceneManager.LoadScene(overrideLevel == -1 && currentLevel < m_levels.Length ? "Game" : "Main Menu");
+        SceneManager.LoadScene(currentLevel < m_levels.Length ? "Game" : "Main Menu");
+    }
+
+    public void ExitToMenu()
+    {
+        SceneManager.LoadScene("Main Menu");
     }
 }

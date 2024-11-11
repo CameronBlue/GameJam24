@@ -28,5 +28,8 @@ public class MenuTabSwitcher : MonoBehaviour
         m_tabDict[m_currentTab].gameObject.SetActive(false);
         m_currentTab = _newTab;
         m_tabDict[m_currentTab].gameObject.SetActive(true);
+        
+        if (_newTab == "Main")
+            MainMenu.Me.ReturnedToMain();
     }
 }

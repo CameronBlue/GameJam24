@@ -120,6 +120,8 @@ public class Manager : MonoBehaviour
         if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.N))
             SaveManager.Me.LevelComplete();
 #endif
+        if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.Escape))
+            SaveManager.Me.ExitToMenu();
     }
 
     private void FixedUpdate()

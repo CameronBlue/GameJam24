@@ -390,19 +390,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 122903606}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1728411947}
-        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: ClickedContinue
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &122903606
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -602,19 +590,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 280176458}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1728411947}
-        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: ClickedStart
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &280176458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -873,19 +849,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 529911363}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1728411947}
-        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: ClickedStartLevel
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &529911363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1896,6 +1860,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bc66eda794ed9947b4a543c51a25a78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_startNewButton: {fileID: 280176457}
+  m_startLevelButton: {fileID: 529911362}
+  m_continueButton: {fileID: 122903605}
 --- !u!114 &1728411948
 MonoBehaviour:
   m_ObjectHideFlags: 0
