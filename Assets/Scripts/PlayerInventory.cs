@@ -34,8 +34,7 @@ public class PlayerInventory : MonoBehaviour
 
     public void StartMe()
     {
-        //Remove this when the level dictates the player starting inventory
-        int[] starter = { 1, 1, 1, 1, 0, 0 };
+        int[] starter = SaveManager.Me == null ? (new []{ 1, 0, 1, 1, 0, 0 }) : SaveManager.Me.GetLevelPotions();
         InitInventory(starter);
     }
 

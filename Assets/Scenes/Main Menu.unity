@@ -881,13 +881,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a17dfcdf0d22dd47b395cb472c134dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  overrideLevel: {fileID: 0}
+  overrideLevel:
+    m_name: 
+    m_data: {fileID: 0}
+    m_potions: 
   currentLevel: 0
   m_levels:
   - m_name: Test1
     m_data: {fileID: 2800000, guid: 8b1b69a8941ac6847aec9a22bea64fc4, type: 3}
+    m_potions: 010000000000000000000000000000000000000000000000
   - m_name: Test2
     m_data: {fileID: 2800000, guid: b24b623e1a97be74c967147b981763bc, type: 3}
+    m_potions: 000000000000000000000000000000000000000000000000
 --- !u!4 &876468077
 Transform:
   m_ObjectHideFlags: 0

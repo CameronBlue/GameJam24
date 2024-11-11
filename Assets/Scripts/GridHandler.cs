@@ -134,7 +134,7 @@ public class GridHandler : MonoBehaviour
     private void Start()
     {
         if (SaveManager.Me)
-            SaveManager.Me.GetLevelTexture(ref m_level);
+            m_level = SaveManager.Me.GetLevelTexture();
 
         SetupImage();
         SetupProperties();
