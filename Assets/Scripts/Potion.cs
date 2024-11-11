@@ -13,7 +13,7 @@ public class Potion : MonoBehaviour
     private int m_capacity;
     private Vector2 _prevVelocity;
     private GridHandler.Cell.Type m_type;
-    
+
     public void Init(Vector2 _force, int _capacity, GridHandler.Cell.Type _type)
     {
         m_capacity = _capacity;
@@ -37,6 +37,7 @@ public class Potion : MonoBehaviour
 
     private void Shatter()
     {
+        AudioManager.PlayAtPoint("shatter", transform.position);
         var inertia = _prevVelocity;
         for (int i = 0; i < m_capacity; ++i)
         {
