@@ -28,12 +28,11 @@ public class CutsceneManager : MonoBehaviour
     public List<Cutscene> cutscenes;
     
     private Cutscene currentCutscene;
-    private int cutsceneIndex = 0;
-    private int pageIndex = 0;
+    private int pageIndex;
 
     private void Start()
     {
-        currentCutscene = cutscenes[cutsceneIndex];
+        currentCutscene = cutscenes[SaveManager.Me.cutsceneIndex];
         LoadPage();
     }
 
@@ -44,8 +43,8 @@ public class CutsceneManager : MonoBehaviour
             pageIndex++;
             if (pageIndex >= currentCutscene.Count)
             {
+                SaveManager.Me.CutsceneFinished();
                 gameObject.SetActive(false);
-                SceneManager.LoadScene("Game");
                 return;
             }
             LoadPage();

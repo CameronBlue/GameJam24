@@ -12,6 +12,7 @@ public class SaveManager : MonoBehaviour
 
     [NonSerialized] public int overrideLevel = -1;
     [NonSerialized] public int currentLevel;
+    [NonSerialized] public int cutsceneIndex;
     
     [Serializable]
     public class Level
@@ -55,6 +56,14 @@ public class SaveManager : MonoBehaviour
         return overrideLevel == -1 ? m_levels[currentLevel] : m_levels[overrideLevel];
     }
 
+    public void Restart(bool _skipOpeningCutscene)
+    {
+        overrideLevel = -1;
+        currentLevel = 0;
+        cutsceneIndex = _skipOpeningCutscene ? 1 : 0;
+        SceneManager.LoadScene(_skipOpeningCutscene ? "Game" : "Cutscenes");
+    }
+    
     public void LevelComplete()
     {
         if (overrideLevel != -1)
@@ -63,7 +72,13 @@ public class SaveManager : MonoBehaviour
             return;
         }
         currentLevel++;
-        SceneManager.LoadScene(currentLevel < m_levels.Length ? "Game" : "Main Menu");
+        SceneManager.LoadScene(currentLevel < m_levels.Length ? "Game" : "Cutscenes");
+    }
+    
+    public void CutsceneFinished()
+    {
+        cutsceneIndex++;
+        SceneManager.LoadScene("Game");
     }
 
     public void ExitToMenu()

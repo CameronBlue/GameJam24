@@ -178,7 +178,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 0}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -537,6 +537,19 @@ MonoBehaviour:
       text: I might not have my magic, but you know what I do have?
     - image: {fileID: 21300000, guid: 6c00a82faf59b3f46b9e54b1bc339f04, type: 3}
       text: My potions!
+  - content:
+    - image: {fileID: 21300000, guid: 7faead01770211a47aa4e8a7f257ca70, type: 3}
+      text: My wife has been sick for so long...\nI became a witch to help her, but
+        the College of Mages didn't accept me.
+    - image: {fileID: 21300000, guid: 9651f242e08b24447879c7221763bc65, type: 3}
+      text: They're the only ones with access to the cure spell. So I had to take
+        matters into my own hands...
+    - image: {fileID: 21300000, guid: 8e9aae08f73c6fd4ca48dc48fcefdff3, type: 3}
+      text: You should have considered the consequences before trying to steal from
+        the College!
+    - image: {fileID: 21300000, guid: f9e37435f65de4d43a2a4a3791986424, type: 3}
+      text: Good luck getting out of here, witch. With that rune, you'll never be
+        able to do magic ever again.
 --- !u!1 &1254326247
 GameObject:
   m_ObjectHideFlags: 0
