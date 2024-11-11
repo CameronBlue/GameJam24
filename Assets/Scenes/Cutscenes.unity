@@ -524,7 +524,7 @@ MonoBehaviour:
     - image: {fileID: 21300000, guid: be388046f33cbba408b50c4390cf718a, type: 3}
       text: My wife has been sick for so long...\nI became a witch to help her, but
         the College of Mages didn't accept me.
-    - image: {fileID: 0}
+    - image: {fileID: 21300000, guid: 493a3ff5e959bad4e94861653188d463, type: 3}
       text: They're the only ones with access to the cure spell. So I had to take
         matters into my own hands...
     - image: {fileID: 21300000, guid: 8a527bf6407e24148bdf7f1b07b1bac2, type: 3}

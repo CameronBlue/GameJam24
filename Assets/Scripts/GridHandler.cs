@@ -133,6 +133,9 @@ public class GridHandler : MonoBehaviour
     
     private void Start()
     {
+        if (SaveManager.Me)
+            SaveManager.Me.GetLevelTexture(ref m_level);
+
         SetupImage();
         SetupProperties();
         LoadMap();
@@ -168,15 +171,18 @@ public class GridHandler : MonoBehaviour
         m_fluidCells = new NativeHashSet<int2>(m_levelWidth * m_levelHeight, Allocator.Persistent); //It should never come close to this amount but if something goes wrong it will prevent a memory leak
         
         var fillMapJob = new FillMapJob(m_cells, m_level);
-        fillMapJob.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
+        //fillMapJob.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
+        for ( int i = 0; i < m_levelWidth * m_levelHeight; ++i)
+            fillMapJob.Execute(i);
         fillMapJob.GetSpecialCells(out var specialCells);
         m_spawnPoint = specialCells[0];
         
         var findFluidsJob = new FindFluidsJob(m_cells, m_cellPropertiesNative, m_fluidCells, m_levelWidth, m_levelHeight);
         findFluidsJob.Schedule().Complete();
+        //findFluidsJob.Execute();
     }
     
-    [BurstCompile]
+    //[BurstCompile]
     private struct FillMapJob : IJobParallelFor
     {
         private NativeArray<Cell> m_cells;
@@ -203,9 +209,12 @@ public class GridHandler : MonoBehaviour
             if (r == 255 && g == 255 && b == 255)
             {
                 m_specialCells[0] = new(_index % m_width, _index / m_width);
+                m_cells[_index] = new Cell { m_type = Cell.Type.Empty, m_amount = 0f };
                 return;
             }
             var type = (r / 64) * 16 + (g / 64) * 4 + (b / 64);
+            if (type >= (int)Cell.Type.Null)
+                type = (int)Cell.Type.Empty;
             m_cells[_index] = new Cell { m_type = (Cell.Type)type, m_amount = (a + 1) * 0.00390625f }; // 1/256
         }
         

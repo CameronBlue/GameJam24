@@ -33,7 +33,7 @@ public class PotionCombiner : MonoBehaviour
     public void StartMe()
     {
         
-        potionIcons = new [] { acidIcon, fireIcon, platformIcon, gasIcon, slimeIcon, bounceIcon };
+        potionIcons = new [] { fireIcon, gasIcon, acidIcon, bounceIcon, slimeIcon, platformIcon };
         
         PlayerInventory inv = PlayerInventory.Me;
         acidSlot.slotSprite = acidIcon;
@@ -101,10 +101,12 @@ public class PotionCombiner : MonoBehaviour
     {
         if (ingredient1full && ingredient2full && PlayerInventory.Me.potionQuantities[ingredient1contents] > 0 && PlayerInventory.Me.potionQuantities[ingredient2contents] > 0)
         {
+            var resultContents = CombinePotions();
+            if (resultContents == -1)
+                return;
             PlayerInventory.Me.potionQuantities[ingredient1contents] -= 1;
             PlayerInventory.Me.potionQuantities[ingredient2contents] -= 1;
-            
-            PlayerInventory.Me.potionQuantities[CombinePotions(ingredient1contents, ingredient2contents)] += 1;
+            PlayerInventory.Me.potionQuantities[resultContents] += 1;
         }
         UpdateSlotNumbers();
     }
@@ -119,33 +121,22 @@ public class PotionCombiner : MonoBehaviour
         bounceSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.BOUNCE_INV_REF];
     }
     
-    private int CombinePotions(int ingredient1, int ingredient2)
+    private int CombinePotions()
     {
-        // ACID_INV_REF = 0;
-        // FIRE_INV_REF = 1;
-        // PLAT_INV_REF = 2;
-        // GAS_INV_REF = 3;
-        // SLIME_INV_REF = 4;
-        // BOUNCE_INV_REF = 5;
-        
-        
+        var type1 = Mathf.Min(ingredient1contents, ingredient2contents);
+        var type2 = Mathf.Max(ingredient1contents, ingredient2contents);
 
-        if (ingredient1 > ingredient2)
+        if (type1 == PlayerInventory.FIRE_INV_REF && type2 == PlayerInventory.ACID_INV_REF)
         {
-            (ingredient1, ingredient2) = (ingredient2, ingredient1);
+            return PlayerInventory.GAS_INV_REF;
         }
-
-        if (ingredient1 == 0 && ingredient2 == 1)
+        if (type1 == PlayerInventory.FIRE_INV_REF && type2 == PlayerInventory.BOUNCE_INV_REF)
         {
-            return 3;
+            return PlayerInventory.PLAT_INV_REF;
         }
-        if (ingredient1 == 0 && ingredient2 == 5)
+        if (type1 == PlayerInventory.ACID_INV_REF && type2 == PlayerInventory.BOUNCE_INV_REF)
         {
-            return 4;
-        }
-        if (ingredient1 == 1 && ingredient2 == 5)
-        {
-            return 2;
+            return PlayerInventory.SLIME_INV_REF;
         }
         return -1;
     }
