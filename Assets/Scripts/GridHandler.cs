@@ -26,7 +26,6 @@ public class GridHandler : MonoBehaviour
             Empty,
             Wall,
             Water,
-            Sand,
             Lava,
             Wood,
             Fire,
@@ -34,9 +33,8 @@ public class GridHandler : MonoBehaviour
             Platform,
             Acid,
             Gas,
-            Oil,
-            Tar,
-            Ice,
+            Slime,
+            Bounce,
             Null //A real cell should never be this type 
         }
         
@@ -71,14 +69,24 @@ public class GridHandler : MonoBehaviour
             m_amount = 0f;
             m_type = Type.Empty;
         }
+
+        public void Combust()
+        {
+            m_type = Type.Fire;
+            m_crystallised = false;
+        }
     }
     
     [Serializable] public struct CellProperties 
     { 
         [Tooltip("Please don't change this, I just couldn't find a way to lock it")]
         public Cell.Type type; //Only here for inspector
-        [Tooltip("Only used for non-grid particles")]
+        [Tooltip("How the potion breaks: 0=Square, 1=Perpendicular, 2=Parallel, 3=Parallel-Replace")]
+        public int potionStyle;
+        [Tooltip("Only used for non-grid particles and potions")]
         public Color32 colour;
+        [Tooltip("Only used for potions")] 
+        public Color32 colour2;
         [Tooltip("Determines which way gravity applies, and which tiles it will sink through")]
         public float weight;
         [Tooltip("Whether the texture edges will apply only next to empty tiles, or at all edges of this type")]
@@ -101,6 +109,7 @@ public class GridHandler : MonoBehaviour
     private NativeArray<CellProperties> m_cellPropertiesNative;
 
     [SerializeField] private RectTransform m_image;
+    [SerializeField] private RectTransform m_background;
     [SerializeField] private Texture2D m_level;
     [SerializeField] private Texture2D m_textureHolder;
     private int m_levelWidth;
@@ -123,26 +132,31 @@ public class GridHandler : MonoBehaviour
     {
         return GetPosition(new(m_spawnPoint.x, m_spawnPoint.y));
     }
-
+    
     private void Start()
     {
+        if (SaveManager.Me)
+            m_level = SaveManager.Me.GetLevelTexture();
+
         SetupImage();
         SetupProperties();
         LoadMap();
     }
-
+    
     private void SetupImage()
     {
         m_levelWidth = m_level.width;
         m_levelHeight = m_level.height;
         m_image.localScale = new Vector3(Manager.c_ImageScale, Manager.c_ImageScale, 1f);
+        m_background.localScale = new Vector3(Manager.c_ImageScale, Manager.c_ImageScale, 1f);
         m_image.sizeDelta = new Vector2(m_levelWidth, m_levelHeight);
+        m_background.sizeDelta = new Vector2(m_levelWidth, m_levelHeight);
+        
         m_textureHolder = new Texture2D(m_levelWidth, m_levelHeight, TextureFormat.RGBA32, 0, true)
         {
             filterMode = FilterMode.Point
         };
         m_image.GetComponent<RawImage>().material.SetTexture("_MainTex", m_textureHolder);
-
     }
 
     private void SetupProperties()
@@ -194,9 +208,12 @@ public class GridHandler : MonoBehaviour
             if (r == 255 && g == 255 && b == 255)
             {
                 m_specialCells[0] = new(_index % m_width, _index / m_width);
+                m_cells[_index] = new Cell { m_type = Cell.Type.Empty, m_amount = 0f };
                 return;
             }
             var type = (r / 64) * 16 + (g / 64) * 4 + (b / 64);
+            if (type >= (int)Cell.Type.Null)
+                type = (int)Cell.Type.Empty;
             m_cells[_index] = new Cell { m_type = (Cell.Type)type, m_amount = (a + 1) * 0.00390625f }; // 1/256
         }
         
@@ -245,7 +262,7 @@ public class GridHandler : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
         {
             var cell = m_cells[index.x + index.y * m_levelWidth];
-            Debug.LogError($"Clicked on {index} which is {cell.m_type} with {cell.m_amount}. Is registered: {m_fluidCells.Contains(index)}");
+            Debug.Log($"Clicked on {index} which is {cell.m_type} with {cell.m_amount}. Is registered: {m_fluidCells.Contains(index)}");
         }
         return GetPosition(new(index.x, index.y));
     }
@@ -255,6 +272,11 @@ public class GridHandler : MonoBehaviour
         var job = new RenderJob(m_cells, m_cellPropertiesNative, m_levelWidth, m_levelHeight);
         job.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
         job.SetTexture(m_textureHolder);
+    }
+
+    public byte[] GetTextureData()
+    {
+        return m_textureHolder.EncodeToPNG();
     }
 
     [BurstCompile]
@@ -449,6 +471,7 @@ public class GridHandler : MonoBehaviour
         [ReadOnly] private Cell m_cell;
         [ReadOnly] private int m_x, m_y;
         [ReadOnly] private int m_width, m_height;
+        [ReadOnly] private bool m_replaceMode;
         private NativeHashSet<int2> m_searchedCells;
 
         public AddIntoGridJob(NativeArray<Cell> _cells, NativeHashSet<int2> _fluidCells, NativeArray<CellProperties> _properties, Cell _cell, int _x, int _y, int _width, int _height)
@@ -463,6 +486,7 @@ public class GridHandler : MonoBehaviour
             m_y = _y;
             m_width = _width;
             m_height = _height;
+            m_replaceMode = _properties[(int)_cell.m_type].potionStyle == 3;
         }
 
         public void Execute()
@@ -474,14 +498,17 @@ public class GridHandler : MonoBehaviour
         {
             m_searchedCells.Add(_pos);
             ref Cell cell = ref m_cells.RefAt(_pos.x + _pos.y * m_width);
-            var wasEmpty = cell.m_type == Cell.Type.Empty;
-            var canAdd = cell.IsEmpty || cell.IsType(m_cell.m_type);
-            var hasRoom = cell.IsFluid(m_cellProperties, true) || cell.m_amount < 1f;
+            var canAdd = m_replaceMode ? !cell.IsEmpty && !cell.IsNull && !cell.IsType(m_cell.m_type) : cell.IsEmpty || cell.IsType(m_cell.m_type);
+            var hasRoom = m_replaceMode || cell.IsFluid(m_cellProperties, true) || cell.m_amount < 1f;
             if (canAdd && hasRoom)
             {
-                cell.Add(m_cell.m_type, m_cell.m_amount);
+                var wasFluid = cell.IsFluid(m_cellProperties, false);
+                if (m_replaceMode)
+                    cell = m_cell;
+                else
+                    cell.Add(m_cell.m_type, m_cell.m_amount);
                 var isFluid = cell.IsFluid(m_cellProperties, false);
-                if (isFluid && wasEmpty)
+                if (isFluid && !wasFluid)
                     m_fluidCells.Add(_pos);
                 return true;
             }
@@ -532,7 +559,6 @@ public class GridHandler : MonoBehaviour
     {
         const float c_MinimumFlowThreshold = 0.01f;
         const float c_LateralDampeningFactor = 0.5f;
-        const float c_VelocityPull = 0.01f;
         
         private NativeArray<Cell> m_cells;
         private NativeHashSet<int2> m_fluidCells;
@@ -601,6 +627,7 @@ public class GridHandler : MonoBehaviour
         
         private void ActuallyUpdateCell(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)
         {
+            UpdateSlime(ref _cell, ref _below, ref _left, ref _right, ref _above);
             UpdateDecay(ref _cell);
             UpdateBurning(ref _cell, ref _below, ref _left, ref _right, ref _above);
             UpdateCorrosion(ref _cell, ref _below, ref _left, ref _right, ref _above);
@@ -621,6 +648,31 @@ public class GridHandler : MonoBehaviour
             DistributeOverflow(ref _cell, ref _below, ref _left, ref _right, ref _above);
         }
 
+        private void UpdateSlime(ref Cell _cell, ref Cell _below, ref Cell _left, ref Cell _right, ref Cell _above)
+        {
+            if (!_cell.IsType(Cell.Type.Slime))
+                return;
+
+            _cell.m_crystallised = true;
+
+            var aboveIsAir = _above.IsEmpty;
+            var belowIsAir = _below.IsEmpty;
+            var leftIsAir = _left.IsEmpty;
+            var rightIsAir = _right.IsEmpty;
+            var touchingAir = aboveIsAir || belowIsAir || leftIsAir || rightIsAir;
+            if (!touchingAir)
+                return;
+            
+            if (!_left.IsNull && !leftIsAir)
+                _left.m_type = Cell.Type.Slime;
+            if (!_right.IsNull && !rightIsAir)
+                _right.m_type = Cell.Type.Slime;
+            if (!_above.IsNull && !aboveIsAir)
+                _above.m_type = Cell.Type.Slime;
+            if (!_below.IsNull && !belowIsAir)
+                _below.m_type = Cell.Type.Slime;
+        }
+
         private void UpdateDecay(ref Cell _cell)
         {
             var rand = m_random.NextFloat(0f, 1f);
@@ -639,7 +691,7 @@ public class GridHandler : MonoBehaviour
             {
                 var p = m_cellProperties[(int)_below.m_type];
                 if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
-                    _below.m_type = Cell.Type.Fire;
+                    _below.Combust();
                 if (_below.IsEmpty)
                     ++airCount;
             }
@@ -647,7 +699,7 @@ public class GridHandler : MonoBehaviour
             {
                 var p = m_cellProperties[(int)_left.m_type];
                 if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
-                    _left.m_type = Cell.Type.Fire;
+                    _left.Combust();
                 if (_left.IsEmpty)
                     ++airCount;
             }
@@ -655,7 +707,7 @@ public class GridHandler : MonoBehaviour
             {
                 var p = m_cellProperties[(int)_right.m_type];
                 if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
-                    _right.m_type = Cell.Type.Fire;
+                    _right.Combust();
                 if (_right.IsEmpty)
                     ++airCount;
             }
@@ -663,7 +715,7 @@ public class GridHandler : MonoBehaviour
             {
                 var p = m_cellProperties[(int)_above.m_type];
                 if (p.flammability > 0f && m_random.NextFloat(0f, 1f) < p.flammability * burnPower)
-                    _above.m_type = Cell.Type.Fire;
+                    _above.Combust();
                 if (_above.IsEmpty)
                     ++airCount;
             }
@@ -763,12 +815,17 @@ public class GridHandler : MonoBehaviour
             var amount = _cell.m_amount;
             if (amount <= 0f)
                 return;
-            var space = 1f - GetFullness(_cell.m_type, _other);
+            var space = 1f - GetFullness(_cell.m_type, _other, out var canSwap);
+            if (canSwap)
+            {
+                (_cell, _other) = (_other, _cell);
+                return;
+            }
             if (space <= 0f)
                 return;
             Transfer(ref _cell, ref _other, math.min(space, amount));
         }
-
+        
         private void UpdateAuxilliaryDirs(ref Cell _cell, ref Cell _dir1, ref Cell _dir2)
         {
             var amount = _cell.m_amount;
@@ -780,14 +837,14 @@ public class GridHandler : MonoBehaviour
             float pull1 = 0f, pull2 = 0f;
             if (!_dir1.IsNull)
             {
-                var otherFullness1 = GetFullness(type, _dir1);
+                var otherFullness1 = GetFullness(type, _dir1, out _);
                 pull1 = (cappedFullness - otherFullness1) * c_LateralDampeningFactor;
                 if (pull1 > c_MinimumFlowThreshold)
                     factors++;
             }
             if (!_dir2.IsNull)
             {
-                var otherFullness2 = GetFullness(type, _dir2);
+                var otherFullness2 = GetFullness(type, _dir2, out _);
                 pull2 = (cappedFullness - otherFullness2) * c_LateralDampeningFactor;
                 if (pull2 > c_MinimumFlowThreshold)
                     factors++;
@@ -810,28 +867,28 @@ public class GridHandler : MonoBehaviour
             float downPull = 0f, leftPull = 0f, rightPull = 0f, upPull = 0f;
             if (!_below.IsNull)
             {
-                var belowOverfullness = math.max(0f, GetFullness(type, _below) - 1f);
+                var belowOverfullness = math.max(0f, GetFullness(type, _below, out _) - 1f);
                 downPull = (overFullness - belowOverfullness) * 0.5f;
                 if (downPull > 0f)
                     factors++;
             }
             if (!_left.IsNull)
             {
-                var leftOverfullness = math.max(0f, GetFullness(type, _left) - 1f);
+                var leftOverfullness = math.max(0f, GetFullness(type, _left, out _) - 1f);
                 leftPull = (overFullness - leftOverfullness) * 0.5f;
                 if (leftPull > 0f)
                     factors++;
             }
             if (!_right.IsNull)
             {
-                var rightOverfullness = math.max(0f, GetFullness(type, _right) - 1f);
+                var rightOverfullness = math.max(0f, GetFullness(type, _right, out _) - 1f);
                 rightPull = (overFullness - rightOverfullness) * 0.5f;
                 if (rightPull > 0f)
                     factors++;
             }
             if (!_above.IsNull)
             {
-                var aboveOverfullness = math.max(0f, GetFullness(type, _above) - 1f);
+                var aboveOverfullness = math.max(0f, GetFullness(type, _above, out _) - 1f);
                 upPull = (overFullness - aboveOverfullness) * 0.5f;
                 if (upPull > 0f)
                     factors++;
@@ -855,8 +912,17 @@ public class GridHandler : MonoBehaviour
             var indexValid = _index.x >= 0 && _index.x < m_width && _index.y >= 0 && _index.y < m_height;
             return ref m_cells.RefAt(indexValid ? _index.x + _index.y * m_width : m_cells.Length - 1); //Last cell is null
         }
+
+        private float GetFullness(Cell.Type _type, Cell _other, out bool _canSwap)
+        {
+            _canSwap = !_other.IsNull && _other.IsFluid(m_cellProperties, true) && IsHeavier(_type, _other.m_type);
+            if (_other.m_type == _type)
+                return _other.m_amount;
+            return _other.m_type == Cell.Type.Empty ? 0f : float.PositiveInfinity;
+        }
         
-        private float GetFullness(Cell.Type _type, Cell _other) => math.select(math.select(float.PositiveInfinity, _other.m_amount, _other.m_type == _type), 0f, _other.m_type == Cell.Type.Empty); //Longer lines are better right?
+        private bool IsHeavier(Cell.Type _a, Cell.Type _b) => m_cellProperties[(int)_a].weight > m_cellProperties[(int)_b].weight;
+            
 
         private void Transfer(ref Cell _cellFrom, ref Cell _cellTo, float _amount)
         {

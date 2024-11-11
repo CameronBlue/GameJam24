@@ -1,17 +1,23 @@
 using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
+    public const float c_ParallaxConst = -25/16f;
+    public const float c_ParallaxStrength = 0.9f * c_ParallaxConst;
     public const float c_ImageScale = 4f;
     public const float c_CellDiameter = c_ImageScale * 0.01f;
     public const float c_CellRadius = c_CellDiameter * 0.5f;
     
     public static Manager Me;
     
+    public RawImage m_background;
     public Transform m_fluidPixelHolder;
+    public Transform m_character;
     
     private List<CustomCollider> m_colliderUpdateList = new();
     private List<(Vector2, GridHandler.Cell)> m_addIntoGridList = new(); 
@@ -19,6 +25,13 @@ public class Manager : MonoBehaviour
     private void Awake()
     {
         Me = this;
+    }
+
+    private void Start()
+    {
+        PlayerInventory.Me.StartMe();
+        PotionCombiner.Me.StartMe();
+        PotionSlotManager.Me.StartMe();
     }
 
     #region Gizmos
@@ -95,14 +108,20 @@ public class Manager : MonoBehaviour
         RunAllCollisions();
         GridHandler.Me.RenderTiles();
         
+        m_background.material.SetVector("_Parallax", c_ParallaxStrength * Camera.main.transform.position);
+        
 #if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.P))
-            Time.timeScale = 1f - Time.timeScale;
         ClearGizmos("MouseOverBlock");
         var point = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
         var pos = GridHandler.Me.DebugPoint(point);
         AddGizmoSquare("MouseOverBlock", pos + c_CellRadius * Vector2.one, c_CellDiameter * Vector2.one, Color.red);
+        if (Input.GetKeyDown(KeyCode.P))
+            Time.timeScale = 1f - Time.timeScale;
+        if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.N))
+            SaveManager.Me.LevelComplete();
 #endif
+        if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.Escape))
+            SaveManager.Me.ExitToMenu();
     }
 
     private void FixedUpdate()
@@ -136,5 +155,12 @@ public class Manager : MonoBehaviour
         foreach (var (pos, cell) in m_addIntoGridList)
             GridHandler.Me.AddIntoGrid(pos, cell);
         m_addIntoGridList.Clear();
+    }
+
+    public void Save(string _saveLocation)
+    {
+        var bytes = GridHandler.Me.GetTextureData();
+        System.IO.File.WriteAllBytes(_saveLocation, bytes);
+        AssetDatabase.Refresh();
     }
 }

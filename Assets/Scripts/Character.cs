@@ -6,6 +6,8 @@ using UnityEngine.Serialization;
 public class Character : MonoBehaviour
 {
     private const float c_CameraTightness = 0.2f;
+
+    public static Character Me;
     
     public Potion m_PotionPrefab;
     
@@ -20,9 +22,16 @@ public class Character : MonoBehaviour
     private Rigidbody2D m_rb;
     [SerializeField]
     private CustomCollider m_customColl;
-
-    public int m_potionNum;
     
+    public GridHandler.Cell.Type m_potionType;
+    
+    [SerializeField] private GameObject m_potionCombiner;
+    
+    private void Awake()
+    {
+        Me = this;
+    }
+
     private void Start()
     {
         transform.position = GridHandler.Me.GetSpawnPoint();
@@ -34,23 +43,24 @@ public class Character : MonoBehaviour
     private void Update()
     {
         UpdateAnimator();
-        UpdateGun();
-        
-        for (int i = 0; i <= 9; ++i)
+
+        if (!m_potionCombiner.activeSelf)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha0 + i))
-            {
-                m_potionNum = i + 1;
-                break;
-            }
+            UpdateGun();
         }
-        
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            var currentlyActive = m_potionCombiner.activeSelf;
+            m_potionCombiner.SetActive(!currentlyActive);
+            Time.timeScale = currentlyActive ? 1f : 0f;
+        }
     }
     
     private void UpdateAnimator()
     {
         var xVel = m_rb.linearVelocity.x;
-        m_sr.flipX = xVel < 0;
+        m_sr.flipX = xVel < 0.1f;
         var speed = Mathf.Abs(xVel);
         m_anim.SetFloat("Speed", speed);
         m_anim.SetBool("Moving", speed > 0.1f);
@@ -64,12 +74,14 @@ public class Character : MonoBehaviour
             Shoot(target);
     }
 
-    private void Shoot(Vector3 _target)
+    private void Shoot(Vector2 _target)
     {
-        var startPos = (Vector2)transform.position + Vector2.up * 0.5f;
-        var force = Utility.GetForceForPosition(startPos, _target, 10f);
+        var startPos = (Vector2)transform.position;
+        var force = (_target - startPos).normalized * 10f + m_rb.linearVelocity;
         var potion = Instantiate(m_PotionPrefab, startPos, Quaternion.identity);
-        potion.Init(force, 250, (GridHandler.Cell.Type)m_potionNum);
+        potion.Init(force, 250, m_potionType);
+        
+        PlayerInventory.Me.RemovePotion(m_potionType);
     }
     
     private void FixedUpdate()

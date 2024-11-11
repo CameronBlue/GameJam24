@@ -44,31 +44,31 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Tex1:
-        m_Texture: {fileID: 2800000, guid: e32606089f7fb854ba4d5950aba323ec, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _Tex2:
         m_Texture: {fileID: 2800000, guid: da68428affc595a4d8f21d716fd9f33b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Tex3:
-        m_Texture: {fileID: 0}
+    - _Tex2:
+        m_Texture: {fileID: 2800000, guid: e32606089f7fb854ba4d5950aba323ec, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Tex4:
+    - _Tex3:
         m_Texture: {fileID: 2800000, guid: 50682d4c0ddb6a94eb6289fc9abfa481, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Tex5:
+    - _Tex4:
         m_Texture: {fileID: 2800000, guid: 9cf22e67ff9d1d94a8c6d3e2b15f4089, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Tex6:
+    - _Tex5:
         m_Texture: {fileID: 2800000, guid: 3f060a94a4ec6cd42b310ccd27a26791, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Tex7:
+    - _Tex6:
         m_Texture: {fileID: 2800000, guid: 54c843d11f61a934a84e889e3c6d5d46, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Tex7:
+        m_Texture: {fileID: 2800000, guid: c90d504c08086c24396e13bb3a29e098, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Tex8:
@@ -77,17 +77,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Col0: 0
-    - _Col1: 1
-    - _Col2: 2
-    - _Col3: 3
     - _EnableExternalAlpha: 0
     - _ZWrite: 0
     m_Colors:
-    - _Col0: {r: 0.3764706, g: 0.3764706, b: 0.3764706, a: 1}
-    - _Col1: {r: 0.15294118, g: 0.3882353, b: 0.98039216, a: 0.7019608}
-    - _Col2: {r: 1, g: 1, b: 0.68235296, a: 1}
-    - _Col3: {r: 0.36862746, g: 0.13333334, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _TextureTiling: {r: 1, g: 1, b: 16, a: 16}

@@ -5,29 +5,52 @@ using Random = UnityEngine.Random;
 
 public class Potion : MonoBehaviour
 {
+    private const float c_shortBoundRadius = 0.2f;
+    private const float c_longBoundRadius = 1.5f;
+    
     [SerializeField] private FluidPixel m_fluidPixelPrefab;
     [SerializeField] private CustomCollider m_customColl;
     [SerializeField] private CustomBounds m_bounds;
     [SerializeField] private Rigidbody2D m_rb;
-    [SerializeField] private SpriteRenderer m_contents;
+    [SerializeField] private SpriteRenderer m_contentsA;
+    [SerializeField] private SpriteRenderer m_contentsB;
     private int m_capacity;
     private Vector2 _prevVelocity;
     private GridHandler.Cell.Type m_type;
-
+    private int m_potionStyle;
+    
     public void Init(Vector2 _force, int _capacity, GridHandler.Cell.Type _type)
     {
         m_capacity = _capacity;
         m_type = _type;
-        m_contents.color = GridHandler.Me.GetProperties(_type).colour;
+        var p = GridHandler.Me.GetProperties(_type);
+        m_potionStyle = p.potionStyle;
+        m_contentsA.color = p.colour;
+        m_contentsB.color = p.colour2;
+
+        m_bounds.size = m_potionStyle switch
+        {
+            0 or 1 => new Vector2(c_longBoundRadius, c_longBoundRadius),
+            _ => new Vector2(c_shortBoundRadius, c_shortBoundRadius)
+        };
+        
         _force = _force.Rotate(Random.Range(-2f, 2f));
         _force *= Random.Range(0.98f, 1.02f);
         m_rb.AddForce(_force, ForceMode2D.Impulse);
+        m_rb.angularVelocity = _force.x * 180f;
     }
 
     private void FixedUpdate()
     {
         if (m_customColl.HitObstacle)
         {
+            if (m_potionStyle != 0)
+            {
+                var hitWall = m_customColl.OnWall;
+                var perpendicular = m_potionStyle == 1;
+                m_bounds.size = perpendicular == hitWall ? new Vector2(c_longBoundRadius, c_shortBoundRadius) : new Vector2(c_shortBoundRadius, c_longBoundRadius);
+            }
+
             Shatter();
             gameObject.SetActive(false);
             Destroy(gameObject);

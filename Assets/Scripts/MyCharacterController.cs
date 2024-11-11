@@ -64,7 +64,7 @@ public class MyCharacterController : MonoBehaviour
         CheckCollisions();
         
         HandleJump();
-        HandleWallJump();
+        //HandleWallJump();
         HandleDirection();
         HandleGravity();
             
