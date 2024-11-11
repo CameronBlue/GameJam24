@@ -171,18 +171,15 @@ public class GridHandler : MonoBehaviour
         m_fluidCells = new NativeHashSet<int2>(m_levelWidth * m_levelHeight, Allocator.Persistent); //It should never come close to this amount but if something goes wrong it will prevent a memory leak
         
         var fillMapJob = new FillMapJob(m_cells, m_level);
-        //fillMapJob.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
-        for ( int i = 0; i < m_levelWidth * m_levelHeight; ++i)
-            fillMapJob.Execute(i);
+        fillMapJob.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
         fillMapJob.GetSpecialCells(out var specialCells);
         m_spawnPoint = specialCells[0];
         
         var findFluidsJob = new FindFluidsJob(m_cells, m_cellPropertiesNative, m_fluidCells, m_levelWidth, m_levelHeight);
         findFluidsJob.Schedule().Complete();
-        //findFluidsJob.Execute();
     }
     
-    //[BurstCompile]
+    [BurstCompile]
     private struct FillMapJob : IJobParallelFor
     {
         private NativeArray<Cell> m_cells;

@@ -4,13 +4,14 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager Me;
 
-    public Level overrideLevel;
-    public int currentLevel = 0;
+    [NonSerialized] public int overrideLevel = -1;
+    [NonSerialized] public int currentLevel;
     
     [Serializable]
     public class Level
@@ -24,28 +25,35 @@ public class SaveManager : MonoBehaviour
     
     private void Awake()
     {
+        if (Me != null)
+        {
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+            return;
+        }
+        
         DontDestroyOnLoad(gameObject);
         Me = this;
     }
     
     public Texture2D GetLevelTexture()
     {
-        if (overrideLevel != null)
-            return overrideLevel.m_data;
-        
-        return m_levels[currentLevel].m_data;
+        return GetLevel().m_data;
     }
 
     public int[] GetLevelPotions()
     {
-        if (overrideLevel != null)
-            return overrideLevel.m_potions;
-        
-        return m_levels[currentLevel].m_potions;
+        return GetLevel().m_potions;
+    }
+
+    private Level GetLevel()
+    {
+        return overrideLevel == -1 ? m_levels[currentLevel] : m_levels[overrideLevel];
     }
 
     public void LevelComplete()
     {
         currentLevel++;
+        SceneManager.LoadScene(overrideLevel == -1 && currentLevel < m_levels.Length ? "Game" : "Main Menu");
     }
 }

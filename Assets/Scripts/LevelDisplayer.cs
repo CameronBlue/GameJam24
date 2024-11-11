@@ -14,7 +14,7 @@ public class LevelDisplayer : MonoBehaviour
     public Transform m_levelHolder;
     
     
-    private Dictionary<LevelOption, SaveManager.Level> m_levelDict = new();
+    private Dictionary<LevelOption, int> m_levelDict = new();
     
     private void Awake()
     {
@@ -23,11 +23,12 @@ public class LevelDisplayer : MonoBehaviour
 
     private void Start()
     {
-        foreach (var level in SaveManager.Me.m_levels)
+        for (var i = 0; i < SaveManager.Me.m_levels.Length; i++)
         {
+            var level = SaveManager.Me.m_levels[i];
             var levelOption = Instantiate(m_levelOptionPrefab, m_levelHolder);
             levelOption.SetLevel(level);
-            m_levelDict.Add(levelOption, level);
+            m_levelDict.Add(levelOption, i);
         }
     }
 

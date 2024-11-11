@@ -62,7 +62,7 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Parallax: {r: -10.806506, g: 10.920152, b: 14.0625, a: 0}
+    - _Parallax: {r: 11.3683815, g: 10.921943, b: 14.0625, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _TextureTiling: {r: 120, g: 67.5, b: 1, a: 1}
   m_BuildTextureStacks: []

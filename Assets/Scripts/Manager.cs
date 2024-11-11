@@ -111,12 +111,14 @@ public class Manager : MonoBehaviour
         m_background.material.SetVector("_Parallax", c_ParallaxStrength * Camera.main.transform.position);
         
 #if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.P))
-            Time.timeScale = 1f - Time.timeScale;
         ClearGizmos("MouseOverBlock");
         var point = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
         var pos = GridHandler.Me.DebugPoint(point);
         AddGizmoSquare("MouseOverBlock", pos + c_CellRadius * Vector2.one, c_CellDiameter * Vector2.one, Color.red);
+        if (Input.GetKeyDown(KeyCode.P))
+            Time.timeScale = 1f - Time.timeScale;
+        if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.N))
+            SaveManager.Me.LevelComplete();
 #endif
     }
 
