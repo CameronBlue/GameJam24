@@ -1,15 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Random = Unity.Mathematics.Random;
 
@@ -35,6 +30,7 @@ public class GridHandler : MonoBehaviour
             Gas,
             Slime,
             Bounce,
+            Bedrock,
             Null //A real cell should never be this type 
         }
         
@@ -212,8 +208,6 @@ public class GridHandler : MonoBehaviour
                 return;
             }
             var type = (r / 64) * 16 + (g / 64) * 4 + (b / 64);
-            if (type >= (int)Cell.Type.Null)
-                type = (int)Cell.Type.Empty;
             m_cells[_index] = new Cell { m_type = (Cell.Type)type, m_amount = (a + 1) * 0.00390625f }; // 1/256
         }
         

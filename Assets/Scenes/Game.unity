@@ -943,6 +943,22 @@ MonoBehaviour:
     heat: 0
     flammability: 1
     crystallisable: 0
+  - type: 12
+    potionStyle: 2
+    colour:
+      serializedVersion: 2
+      rgba: 4294909470
+    colour2:
+      serializedVersion: 2
+      rgba: 4290052137
+    weight: 0
+    edgeNeedsEmpty: 0
+    viscosity: 1
+    corrosivity: 0
+    corrodability: 0
+    heat: 0
+    flammability: 0
+    crystallisable: 0
   m_image: {fileID: 1952815454}
   m_background: {fileID: 1912682876}
   m_level: {fileID: 2800000, guid: 9484ddd525518264b8d2972870061dad, type: 3}
