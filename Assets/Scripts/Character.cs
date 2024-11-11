@@ -68,6 +68,9 @@ public class Character : MonoBehaviour
 
     private void UpdateGun()
     {
+        if (m_potionType == GridHandler.Cell.Type.Null)
+            return;
+        
         var target = m_mainCam.ScreenToWorldPoint(Input.mousePosition);
         target.z = 0;
         if (Input.GetMouseButtonDown(0))
@@ -84,7 +87,7 @@ public class Character : MonoBehaviour
         PlayerInventory.Me.RemovePotion(m_potionType);
     }
     
-    private void FixedUpdate()
+    public void FixedUpdateMe()
     {
         m_smoothedPos = Vector3.Lerp(m_smoothedPos, transform.position, c_CameraTightness);
         m_smoothedPos.z = m_mainCam.transform.position.z;

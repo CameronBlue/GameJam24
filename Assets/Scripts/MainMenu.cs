@@ -23,9 +23,7 @@ public class MainMenu : MonoBehaviour
 
     public void ClickedStart()
     {
-        SaveManager.Me.currentLevel = 0;
-        SaveManager.Me.overrideLevel = -1;
-        SceneManager.LoadScene(Input.GetKey(KeyCode.Escape) ? "Game" : "Cutscenes");
+        SaveManager.Me.Restart(Input.GetKey(KeyCode.F));
     }
 
     public void ClickedContinue()

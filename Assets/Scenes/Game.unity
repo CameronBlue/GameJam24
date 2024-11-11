@@ -163,6 +163,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Potion Combiner
       objectReference: {fileID: 0}
+    - target: {fileID: 5483570497316726791, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6720326269660222690, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_Color.a
       value: 1
@@ -766,6 +770,8 @@ MonoBehaviour:
     corrodability: 0
     heat: 0
     flammability: 0
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 1
     potionStyle: 0
@@ -782,6 +788,8 @@ MonoBehaviour:
     corrodability: 1
     heat: 0
     flammability: 0
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 2
     potionStyle: 0
@@ -798,6 +806,8 @@ MonoBehaviour:
     corrodability: 0
     heat: 0
     flammability: 0
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 3
     potionStyle: 0
@@ -814,6 +824,8 @@ MonoBehaviour:
     corrodability: 0
     heat: 0.1
     flammability: 0
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 4
     potionStyle: 0
@@ -830,6 +842,8 @@ MonoBehaviour:
     corrodability: 0
     heat: 0
     flammability: 25
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 5
     potionStyle: 3
@@ -846,6 +860,8 @@ MonoBehaviour:
     corrodability: 0
     heat: 1
     flammability: 0
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 6
     potionStyle: 0
@@ -862,6 +878,8 @@ MonoBehaviour:
     corrodability: 0
     heat: 0
     flammability: 0
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 7
     potionStyle: 1
@@ -878,6 +896,8 @@ MonoBehaviour:
     corrodability: 20
     heat: 0
     flammability: 10
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 8
     potionStyle: 0
@@ -894,6 +914,8 @@ MonoBehaviour:
     corrodability: 0
     heat: 0
     flammability: 0
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 9
     potionStyle: 0
@@ -910,6 +932,8 @@ MonoBehaviour:
     corrodability: 0
     heat: 0
     flammability: 0
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 10
     potionStyle: 3
@@ -926,6 +950,8 @@ MonoBehaviour:
     corrodability: 1
     heat: 0
     flammability: 1
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 11
     potionStyle: 2
@@ -942,6 +968,8 @@ MonoBehaviour:
     corrodability: 0
     heat: 0
     flammability: 1
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   - type: 12
     potionStyle: 2
@@ -958,6 +986,8 @@ MonoBehaviour:
     corrodability: 0
     heat: 0
     flammability: 0
+    explosivity: 0
+    explodability: 0
     crystallisable: 0
   m_image: {fileID: 1952815454}
   m_background: {fileID: 1912682876}

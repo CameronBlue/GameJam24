@@ -97,6 +97,10 @@ public class GridHandler : MonoBehaviour
         public float heat;
         [Tooltip("How likely a tile is to catch on fire")]
         public float flammability;
+        [Tooltip("How big a tile's explosion is")]
+        public float explosivity;
+        [Tooltip("How likely a tile is to be exploded")]
+        public float explodability;
         [Tooltip("Whether this liquid solidifies on contact with solid blocks")]
         public bool crystallisable;
     }
@@ -362,6 +366,13 @@ public class GridHandler : MonoBehaviour
         var y = Mathf.Clamp(Clamp(m_levelHeight * 0.5f + _p.y / Manager.c_CellDiameter), 0, m_levelHeight - 1);
         return new(x, y);
     }
+
+    public float2 GetCellFloat(Vector2 _p)
+    {
+        var x = Mathf.Clamp(m_levelWidth * 0.5f + _p.x / Manager.c_CellDiameter, 0, m_levelWidth - 1);
+        var y = Mathf.Clamp(m_levelHeight * 0.5f + _p.y / Manager.c_CellDiameter, 0, m_levelHeight - 1);
+        return new(x, y);
+    }
     
     public float2 GetPosition(int2 _i) => GetPosition(_i, new(m_levelWidth, m_levelHeight));
     
@@ -372,78 +383,221 @@ public class GridHandler : MonoBehaviour
         return (float2)_i * Manager.c_CellDiameter;
     }
 
-    public Vector3[][] CheckCells(int4[] _bounds)
+    public Vector2 GetPositionFloat(float2 _cellPos)
     {
-        var job = new CheckCellsJob(m_cells, m_cellPropertiesNative, _bounds, m_levelWidth, m_levelHeight);
-        job.Schedule().Complete();
-        return job.GetOutput();
+        _cellPos.x -= m_levelWidth * 0.5f;
+        _cellPos.y -= m_levelHeight * 0.5f;
+        return _cellPos * Manager.c_CellDiameter;
     }
 
+    public void CheckCells(ref ColliderData[] _bounds)
+    {
+        var job = new CheckCellsJob(m_cells, m_cellPropertiesNative, _bounds, m_levelWidth, m_levelHeight);
+        job.Schedule(_bounds.Length, 1).Complete();
+        job.Finish(ref _bounds);
+    }
+
+    public struct ColliderData
+    {
+        public float2 m_min;
+        public float2 m_max;
+        public float2 m_prevMin;
+        public float2 m_prevMax;
+        public float2 m_velocity;
+
+        public int4 m_blocksAround;
+        public int4 m_bounceAround;
+        public int4 m_slimeAround;
+        
+        public ColliderData(float2 _min, float2 _max, float2 _prevMin, float2 _prevMax, float2 _velocity)
+        {
+            m_min = _min;
+            m_max = _max;
+            m_prevMin = _prevMin;
+            m_prevMax = _prevMax;
+            m_velocity = _velocity;
+            m_blocksAround = 0;
+            m_bounceAround = 0;
+            m_slimeAround = 0;
+        }
+        
+        public float2 GetCentre => (m_min + m_max) * 0.5f;
+
+        public void ResolveIntersection(int2 _prevRelative, float2 _cellMin, float2 _cellMax)
+        {
+            float2 offset;
+            if (_prevRelative.x == 0)
+                offset = new float2(0f, _prevRelative.y == 1 ? _cellMax.y - m_min.y : _cellMin.y - m_max.y);
+            else if (_prevRelative.y == 0)
+                offset = new float2(_prevRelative.x == 1 ? _cellMax.x - m_min.x : _cellMin.x - m_max.x, 0f);
+            else
+            {
+                offset = m_velocity.y * m_velocity.y > m_velocity.x * m_velocity.x
+                    ? new float2(_prevRelative.x == 1 ? _cellMax.x - m_min.x : _cellMin.x - m_max.x, 0f)
+                    : new float2(0f, _prevRelative.y == 1 ? _cellMax.y - m_min.y : _cellMin.y - m_max.y);
+            }
+            if (math.lengthsq(offset) < 0.001f * 0.001f)
+                return;
+            
+            m_min += offset;
+            m_max += offset;
+            m_velocity -= offset * math.dot(m_velocity, offset) / math.dot(offset, offset);
+        }
+    }
 
     [BurstCompile]
-    private struct CheckCellsJob : IJob
+    private struct CheckCellsJob : IJobParallelFor
     {
         [ReadOnly] private NativeArray<Cell> m_cells;
         [ReadOnly] private NativeArray<CellProperties> m_cellProperties;
-        [ReadOnly] private NativeArray<int4> m_boundsToCheck;
         [ReadOnly] private int2 m_mapSize;
-        private NativeList<float3> m_output;
-        private NativeArray<int> m_outputAccessIndices; 
+        private NativeArray<ColliderData> m_bounds;
 
-        public CheckCellsJob(NativeArray<Cell> _cells, NativeArray<CellProperties> _properties, int4[] _boundsToCheck, int _width, int _height)
+        public CheckCellsJob(NativeArray<Cell> _cells, NativeArray<CellProperties> _properties, ColliderData[] _bounds, int _width, int _height)
         {
             m_cells = _cells;
             m_cellProperties = _properties;
-            m_boundsToCheck = new(_boundsToCheck, Allocator.TempJob);
             m_mapSize = new(_width, _height);
-            m_output = new(128, Allocator.TempJob);
-            m_outputAccessIndices = new(m_boundsToCheck.Length, Allocator.TempJob);
+            m_bounds = new(_bounds, Allocator.TempJob);
         }
 
-        public void Execute()
+        public void Execute(int _index)
         {
-            for (int i = 0; i < m_boundsToCheck.Length; ++i)
+            ref ColliderData bounds = ref m_bounds.RefAt(_index);
+            ResolveIntersections(ref bounds);
+            SearchAround(ref bounds);
+        }
+
+        private void ResolveIntersections(ref ColliderData _bounds)
+        {
+            var max = (int2)math.ceil(_bounds.m_max);
+            var min = (int2)math.floor(_bounds.m_min);
+            
+            NativeList<float4> ambiguousIntersections = new(Allocator.Temp);
+            for (int x = min.x; x < max.x; ++x)
             {
-                var bounds = m_boundsToCheck[i];
-                
-                for (int x = bounds.x; x <= bounds.z; ++x)
+                for (int y = min.y; y < max.y; ++y)
                 {
-                    for (int y = bounds.y; y <= bounds.w; ++y)
+                    var index = x + y * m_mapSize.x;
+                    var cell = m_cells[index];
+                    if (cell.IsFluid(m_cellProperties, true))
+                        continue;
+                    
+                    var cellPos = new float2(x, y);
+                    var cellMin = cellPos;
+                    var cellMax = cellPos + 1f;
+                    var rel = CompareBounds(_bounds.m_min, _bounds.m_max, cellMin, cellMax);
+                    if (rel.x != 0 || rel.y != 0)
+                        continue;
+                    
+                    var prevRel = CompareBounds(_bounds.m_prevMin, _bounds.m_prevMax, cellMin, cellMax);
+                    if (prevRel.x == 0 && prevRel.y == 0)
+                        continue; //Alas we are unable to unstuck
+                    
+                    if (prevRel.x != 0 && prevRel.y != 0)
                     {
-                        var index = x + y * m_mapSize.x;
-                        var cell = m_cells[index];
-                        var viscosity = cell.IsFluid(m_cellProperties, true) ? m_cellProperties[(int)cell.m_type].viscosity : 1f;
-                        if (viscosity <= 0f)
-                            continue;
-                        m_output.Add(new(GetPosition(new(x, y), m_mapSize), viscosity));
+                        ambiguousIntersections.Add(new(cellMin, cellMax));
+                        continue;
                     }
+
+                    _bounds.ResolveIntersection(prevRel, cellMin, cellMax);
                 }
-                m_outputAccessIndices[i] = m_output.Length;
             }
-        }
-
-        public Vector3[][] GetOutput()
-        {
-            var nativeOutput = m_output.AsArray().Reinterpret<Vector3>();
-            var outputCount = m_outputAccessIndices.Length;
-            var output = new Vector3[outputCount][];
-
-            var prevIndex = 0;
-            for (int i = 0; i < outputCount; ++i)
+            foreach (var intersection in ambiguousIntersections)
             {
-                var index = m_outputAccessIndices[i];
-                var length = index - prevIndex;
-                output[i] = new Vector3[length];
-                if (length == 0)
+                var cellMin = intersection.xy;
+                var cellMax = intersection.zw;
+                var rel = CompareBounds(_bounds.m_min, _bounds.m_max, cellMin, cellMax);
+                if (rel.x != 0 && rel.y != 0)
                     continue;
-                NativeArray<Vector3>.Copy(nativeOutput, prevIndex, output[i], 0, length);
-                prevIndex = index;
+                
+                var prevRel = CompareBounds(_bounds.m_prevMin, _bounds.m_prevMax, cellMin, cellMax);
+                _bounds.ResolveIntersection(prevRel, cellMin, cellMax);
             }
             
-            m_boundsToCheck.Dispose();
-            m_output.Dispose();
-            m_outputAccessIndices.Dispose();
-            return output;
+            ambiguousIntersections.Dispose();
+        }
+        
+        private void SearchAround(ref ColliderData _bounds)
+        {
+            var max = (int2)math.ceil(_bounds.m_max);
+            var min = (int2)math.floor(_bounds.m_min);
+
+            var left = min.x - 1;
+            if (left >= 0)
+            {
+                for (int y = min.y; y < max.y; ++y)
+                {
+                    var index = left + y * m_mapSize.x;
+                    var cell = m_cells[index];
+                    if (cell.IsType(Cell.Type.Bounce))
+                        _bounds.m_bounceAround.x++;
+                    else if (cell.IsType(Cell.Type.Slime))
+                        _bounds.m_slimeAround.x++;
+                    else if (!cell.IsFluid(m_cellProperties, true))
+                        _bounds.m_blocksAround.x++;
+                }
+            }
+
+            var bottom = min.y - 1;
+            if (bottom >= 0)
+            {
+                for (int x = min.x; x < max.x; ++x)
+                {
+                    var index = x + bottom * m_mapSize.x;
+                    var cell = m_cells[index];
+                    if (cell.IsType(Cell.Type.Bounce))
+                        _bounds.m_bounceAround.y++;
+                    else if (cell.IsType(Cell.Type.Slime))
+                        _bounds.m_slimeAround.y++;
+                    else if (!cell.IsFluid(m_cellProperties, true))
+                        _bounds.m_blocksAround.y++;
+                }
+            }
+            var right = max.x;
+            if (right < m_mapSize.x)
+            {
+                for (int y = min.y; y < max.y; ++y)
+                {
+                    var index = right + y * m_mapSize.x;
+                    var cell = m_cells[index];
+                    if (cell.IsType(Cell.Type.Bounce))
+                        _bounds.m_bounceAround.z++;
+                    else if (cell.IsType(Cell.Type.Slime))
+                        _bounds.m_slimeAround.z++;
+                    else if (!cell.IsFluid(m_cellProperties, true))
+                        _bounds.m_blocksAround.z++;
+                }
+            }
+            var top = max.y;
+            if (top < m_mapSize.y)
+            {
+                for (int x = min.x; x < max.x; ++x)
+                {
+                    var index = x + top * m_mapSize.x;
+                    var cell = m_cells[index];
+                    if (cell.IsType(Cell.Type.Bounce))
+                        _bounds.m_bounceAround.w++;
+                    else if (cell.IsType(Cell.Type.Slime))
+                        _bounds.m_slimeAround.w++;
+                    else if (!cell.IsFluid(m_cellProperties, true))
+                        _bounds.m_blocksAround.w++;
+                }
+            }
+        }
+
+        private int2 CompareBounds(float2 _minA, float2 _maxA, float2 _minB, float2 _maxB)
+        {
+            int x = (_minA.x >= _maxB.x) ? 1 : ((_maxA.x <= _minB.x) ? -1 : 0);
+            int y = (_minA.y >= _maxB.y) ? 1 : ((_maxA.y <= _minB.y) ? -1 : 0);
+            return new(x, y);
+        }
+
+        public void Finish(ref ColliderData[] _fillInto)
+        {
+            _fillInto = new ColliderData[m_bounds.Length];
+            NativeArray<ColliderData>.Copy(m_bounds, _fillInto, _fillInto.Length);
+            m_bounds.Dispose();
         }
     }
 

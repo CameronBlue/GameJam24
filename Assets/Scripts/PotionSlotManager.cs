@@ -71,6 +71,7 @@ public class PotionSlotManager : MonoBehaviour
     {
         if (currentPotionSlots.Count == 0)
         {
+            Character.Me.m_potionType = GridHandler.Cell.Type.Null;
             gameObject.SetActive(false);
             return;
         }

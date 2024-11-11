@@ -42,11 +42,11 @@ public class Potion : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (m_customColl.HitObstacle)
+        if (m_customColl.Colliding)
         {
             if (m_potionStyle != 0)
             {
-                var hitWall = m_customColl.OnWall;
+                var hitWall = m_customColl.CollidingHorizontal;
                 var perpendicular = m_potionStyle == 1;
                 m_bounds.size = perpendicular == hitWall ? new Vector2(c_longBoundRadius, c_shortBoundRadius) : new Vector2(c_shortBoundRadius, c_longBoundRadius);
             }

@@ -130,23 +130,32 @@ public class Manager : MonoBehaviour
         AddAllIntoGrid();
         RunAllCollisions();
         GridHandler.Me.UpdateFluids();
+        Character.Me.FixedUpdateMe();
     }
 
     private void RunAllCollisions()
     {
-        var bounds = new int4[m_colliderUpdateList.Count];
+        var bounds = new GridHandler.ColliderData[m_colliderUpdateList.Count];
         for (var index = 0; index < m_colliderUpdateList.Count; index++)
         {
             var coll = m_colliderUpdateList[index];
-            var nextBound = new int4(GridHandler.Me.GetCell(coll.m_bounds.min, Mathf.FloorToInt),
-                GridHandler.Me.GetCell(coll.m_bounds.max, Mathf.CeilToInt));
+            var min = GridHandler.Me.GetCellFloat(coll.m_bounds.min);
+            var max = GridHandler.Me.GetCellFloat(coll.m_bounds.max);
+            var prevBounds = coll.GetPrevBounds();
+            var prevMin = GridHandler.Me.GetCellFloat(prevBounds.min);
+            var prevMax = GridHandler.Me.GetCellFloat(prevBounds.max);
+            var nextBound = new GridHandler.ColliderData(min, max, prevMin, prevMax, coll.GetVelocity());
             bounds[index] = nextBound;
         }
-        var output = GridHandler.Me.CheckCells(bounds);
+        
+        GridHandler.Me.CheckCells(ref bounds);
+        
         for (var index = 0; index < m_colliderUpdateList.Count; index++)
         {
             var coll = m_colliderUpdateList[index];
-            coll.HandleCollisions(output[index]);
+            var result = bounds[index];
+            var newPos = GridHandler.Me.GetPositionFloat(result.GetCentre);
+            coll.UpdateWithResults(newPos, result.m_velocity, result.m_bounceAround, result.m_slimeAround, result.m_blocksAround);
         }
     }
 

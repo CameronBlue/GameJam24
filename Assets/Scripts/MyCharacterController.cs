@@ -88,7 +88,7 @@ public class MyCharacterController : MonoBehaviour
             // bool ceilingHit = Physics2D.CapsuleCast(_col.bounds.center, _col.size, _col.direction, 0, Vector2.up, _stats.GrounderDistance, ~_stats.PlayerLayer);
             
             //new
-            bool groundHit = _customCol.OnGround;
+            bool groundHit = _customCol.CanJump;
             
             
             
@@ -103,11 +103,11 @@ public class MyCharacterController : MonoBehaviour
             // }
             
             //new
-            if (_customCol.OnLeftWall)
+            if (_customCol.CanWallJumpRight)
             {
                 _wallJumpDirection = 1;
             } 
-            else if (_customCol.OnRightWall)
+            else if (_customCol.CanWallJumpLeft)
             {
                 _wallJumpDirection = -1;
             }
