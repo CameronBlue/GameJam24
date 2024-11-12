@@ -115,11 +115,13 @@ public class Manager : MonoBehaviour
         var point = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
         var pos = GridHandler.Me.DebugPoint(point);
         AddGizmoSquare("MouseOverBlock", pos + c_CellRadius * Vector2.one, c_CellDiameter * Vector2.one, Color.red);
+#endif
         if (Input.GetKeyDown(KeyCode.P))
             Time.timeScale = 1f - Time.timeScale;
+        if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.R))
+            SaveManager.Me.RestartLevel();
         if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.N))
             SaveManager.Me.LevelComplete();
-#endif
         if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.Escape))
             SaveManager.Me.ExitToMenu();
     }
@@ -164,12 +166,5 @@ public class Manager : MonoBehaviour
         foreach (var (pos, cell) in m_addIntoGridList)
             GridHandler.Me.AddIntoGrid(pos, cell);
         m_addIntoGridList.Clear();
-    }
-
-    public void Save(string _saveLocation)
-    {
-        var bytes = GridHandler.Me.GetTextureData();
-        System.IO.File.WriteAllBytes(_saveLocation, bytes);
-        AssetDatabase.Refresh();
     }
 }

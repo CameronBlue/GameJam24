@@ -75,10 +75,16 @@ public class SaveManager : MonoBehaviour
         SceneManager.LoadScene(currentLevel < m_levels.Length ? "Game" : "Cutscenes");
     }
     
+    public void RestartLevel()
+    {
+        SceneManager.LoadScene("Game");
+    }
+    
     public void CutsceneFinished()
     {
         cutsceneIndex++;
-        SceneManager.LoadScene("Game");
+        bool last = cutsceneIndex == CutsceneManager.Me.cutscenes.Count;
+        SceneManager.LoadScene(last ? "Main Menu" : "Game");
     }
 
     public void ExitToMenu()

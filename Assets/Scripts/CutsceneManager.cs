@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class CutsceneManager : MonoBehaviour
 {
+    public static CutsceneManager Me;
+    
     public Image m_image;
     public TextMeshProUGUI m_text;
 
@@ -29,6 +31,11 @@ public class CutsceneManager : MonoBehaviour
     
     private Cutscene currentCutscene;
     private int pageIndex;
+
+    private void Awake()
+    {
+        Me = this;
+    }
 
     private void Start()
     {
