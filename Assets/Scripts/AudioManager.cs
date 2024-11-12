@@ -13,6 +13,9 @@ public class AudioManager : MonoBehaviour
     private void Awake()
     {
         Me = this;
+
+        DontDestroyOnLoad(gameObject);
+
         foreach (Sound s in m_sounds)
         {
             s.source = gameObject.AddComponent<AudioSource>();
@@ -22,7 +25,20 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+<<<<<<< Updated upstream
     public static void Play (string name)
+=======
+    private void Update()
+    {
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            AudioManager.Play("ding");
+        }
+    }
+
+    public static void Play(string name, bool reset=true)
+>>>>>>> Stashed changes
     {
         Sound s = Me.m_sounds.Find(sound => sound.name == name);
         if (s==null)
@@ -35,10 +51,35 @@ public class AudioManager : MonoBehaviour
             Debug.LogWarning("Sound: " + name + " has no audio");
             return;
         }
+<<<<<<< Updated upstream
         s.source.Play();
+=======
+
+        if (!s.source.isPlaying||reset)
+        {
+           s.source.Play();
+        }
+       
     }
 
-    public static void PlayAtPoint (string name, Vector2 point)
+    public static void Stop(string name)
+    {
+        Sound s = Me.m_sounds.Find(sound => sound.name == name);
+        if (s == null)
+        {
+            Debug.LogWarning("Sound: " + name + " not found");
+            return;
+        }
+        if (s.source.clip == null)
+        {
+            Debug.LogWarning("Sound: " + name + " has no audio");
+            return;
+        }
+        s.source.Stop();
+>>>>>>> Stashed changes
+    }
+
+    public static void PlayAtPoint(string name, Vector2 point)
     {
         Sound s = Me.m_sounds.Find(sound => sound.name == name);
         if (s == null)

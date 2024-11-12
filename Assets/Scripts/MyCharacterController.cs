@@ -33,6 +33,16 @@ public class MyCharacterController : MonoBehaviour
     
     private void Update()
     {
+<<<<<<< Updated upstream
+=======
+        if (_grounded && _rb.linearVelocity.x != 0)
+        {
+            AudioManager.Play("run", false);
+        } else
+        {
+            AudioManager.Stop("run");
+        }
+>>>>>>> Stashed changes
         _time = Time.time;
         GatherInput();
     }
@@ -241,6 +251,17 @@ public class MyCharacterController : MonoBehaviour
 
         private void HandleGravity()
         {
+<<<<<<< Updated upstream
+=======
+            if (_hitBounce)
+            {
+            AudioManager.Play("jump");
+                _frameVelocity.y = Mathf.Abs(_frameVelocity.y) < 0.3f ? 0f : -1.6f*(_frameVelocity.y);
+                _hitBounce = false;
+                return;
+            }
+            
+>>>>>>> Stashed changes
             if (_grounded && _frameVelocity.y <= 0f)
             {
                 _frameVelocity.y = _stats.GroundingForce;
