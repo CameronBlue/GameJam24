@@ -71,6 +71,14 @@ public class AudioManager : MonoBehaviour
         s.source.Stop();
     }
 
+    public static void StopAll(string name)
+    {
+        foreach (Sound s in Me.m_sounds)
+        {
+            Stop(s.name);
+        }
+    }
+
     public static void PlayAtPoint (string name, Vector2 point)
     {
         Sound s = Me.m_sounds.Find(sound => sound.name == name);
