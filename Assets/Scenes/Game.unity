@@ -902,7 +902,7 @@ MonoBehaviour:
     decayRate: 0
     crystallisable: 0
   - type: 11
-    potionStyle: 2
+    potionStyle: 3
     colour:
       serializedVersion: 2
       rgba: 4294909470
