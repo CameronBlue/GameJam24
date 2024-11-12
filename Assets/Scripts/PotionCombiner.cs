@@ -25,6 +25,7 @@ public class PotionCombiner : MonoBehaviour
     
     [SerializeField] private Image ingredient1;
     [SerializeField] private Image ingredient2;
+    [SerializeField] private Button combineButton;
 
     private void Awake()
     {
@@ -33,7 +34,6 @@ public class PotionCombiner : MonoBehaviour
 
     public void StartMe()
     {
-        
         potionIcons = new [] { fireIcon, gasIcon, acidIcon, bounceIcon, slimeIcon, platformIcon };
         
         acidSlot.SetSprite(acidIcon);
@@ -44,7 +44,6 @@ public class PotionCombiner : MonoBehaviour
         bounceSlot.SetSprite(bounceIcon);
         
         UpdateSlotNumbers();
-        
     }
     
     bool ingredient1full;
@@ -52,6 +51,7 @@ public class PotionCombiner : MonoBehaviour
     
     int ingredient1contents;
     int ingredient2contents;
+    int ResultType => CombinePotions();
     
     void Update()
     {
@@ -61,6 +61,9 @@ public class PotionCombiner : MonoBehaviour
         
         ingredient1.sprite = ingredient1full ? potionIcons[ingredient1contents] : emptyIcon;
         ingredient2.sprite = ingredient2full ? potionIcons[ingredient2contents] : emptyIcon;
+        combineButton.interactable = ResultType != -1;
+        
+        UpdateSlotNumbers();
     }
 
     private void UpdateCombineSlots(bool slotActive, int inventoryRef)
@@ -89,35 +92,38 @@ public class PotionCombiner : MonoBehaviour
     {
         if (ingredient1full && ingredient2full && PlayerInventory.Me.potionQuantities[ingredient1contents] > 0 && PlayerInventory.Me.potionQuantities[ingredient2contents] > 0)
         {
-            var resultContents = CombinePotions();
-            if (resultContents == -1)
+            if (ResultType == -1)
                 return;
             PlayerInventory.Me.potionQuantities[ingredient1contents] -= 1;
             PlayerInventory.Me.potionQuantities[ingredient2contents] -= 1;
-            PlayerInventory.Me.potionQuantities[resultContents] += 1;
+            PlayerInventory.Me.potionQuantities[ResultType] += 1;
         }
-        UpdateSlotNumbers();
     }
 
     private void UpdateSlotNumbers()
     {
-        var acidQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.ACID_INV_REF]}";
-        var fireQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.FIRE_INV_REF]}";
-        var platQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.PLAT_INV_REF]}";
-        var gasQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.GAS_INV_REF]}";
-        var slimeQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.SLIME_INV_REF]}";
-        var bounceQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.BOUNCE_INV_REF]}";
+        string[] quantityTexts = new string[PlayerInventory.PLAT_INV_REF + 1];
+        for (int i = 0; i <= PlayerInventory.PLAT_INV_REF; ++i)
+        {
+            var isInput = (ingredient1full && i == ingredient1contents) || (ingredient2full && i == ingredient2contents);
+            var isOutput = i == ResultType;
+            var extra = isInput ? "<color=\"red\"> (-1)" : (isOutput ? "<color=\"green\"> (+1)" : "");
+            quantityTexts[i] = $"{PlayerInventory.Me.potionQuantities[i]}{extra}";
+        }
         
-        acidSlot.SetQuantityText(acidQuantityText);
-        fireSlot.SetQuantityText(fireQuantityText);
-        platSlot.SetQuantityText(platQuantityText);
-        gasSlot.SetQuantityText(gasQuantityText);
-        slimeSlot.SetQuantityText(slimeQuantityText);
-        bounceSlot.SetQuantityText(bounceQuantityText);
+        acidSlot.SetQuantityText(quantityTexts[PlayerInventory.ACID_INV_REF]);
+        fireSlot.SetQuantityText(quantityTexts[PlayerInventory.FIRE_INV_REF]);
+        platSlot.SetQuantityText(quantityTexts[PlayerInventory.PLAT_INV_REF]);
+        gasSlot.SetQuantityText(quantityTexts[PlayerInventory.GAS_INV_REF]);
+        slimeSlot.SetQuantityText(quantityTexts[PlayerInventory.SLIME_INV_REF]);
+        bounceSlot.SetQuantityText(quantityTexts[PlayerInventory.BOUNCE_INV_REF]);
     }
     
     private int CombinePotions()
     {
+        if (!ingredient1full || !ingredient2full)
+            return -1;
+        
         var type1 = Mathf.Min(ingredient1contents, ingredient2contents);
         var type2 = Mathf.Max(ingredient1contents, ingredient2contents);
 

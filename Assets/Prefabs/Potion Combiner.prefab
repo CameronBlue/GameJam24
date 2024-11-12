@@ -73,6 +73,7 @@ MonoBehaviour:
   slimeIcon: {fileID: 21300000, guid: 5678dfaf2fa3a2a4aacae59df8350432, type: 3}
   ingredient1: {fileID: 2247447952310489127}
   ingredient2: {fileID: 1188622137757074982}
+  combineButton: {fileID: 4049885189771938574}
 --- !u!1 &6429470403546006241
 GameObject:
   m_ObjectHideFlags: 0
@@ -665,6 +666,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2722559424244118019, guid: ade4ad1b179f93e4ea28115f4309e910, type: 3}
   m_PrefabInstance: {fileID: 3452005282336742115}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4049885189771938574 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1716972742354194925, guid: ade4ad1b179f93e4ea28115f4309e910, type: 3}
+  m_PrefabInstance: {fileID: 3452005282336742115}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4698200127676962095
 PrefabInstance:
   m_ObjectHideFlags: 0
