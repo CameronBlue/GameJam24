@@ -24,6 +24,7 @@ public class AudioManager : MonoBehaviour
             s.source.pitch = s.pitch;
             s.source.loop = s.loop;
         }
+        Play("title_theme");
     }
 
     private void Update()

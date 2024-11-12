@@ -35,13 +35,20 @@ public class MyCharacterController : MonoBehaviour
     
     private void Update()
     {
-        if (_grounded && _rb.linearVelocity.x != 0)
+        if ((_touchingSlimeCeiling || _touchingSlimeWall) && (_rb.linearVelocity.x != 0 || _rb.linearVelocity.y != 0))
+        {
+            AudioManager.Play("slime", false);
+            AudioManager.Stop("run");
+        } 
+        else if (_grounded && _rb.linearVelocity.x != 0)
         {
             AudioManager.Play("run", false);
+            AudioManager.Stop("slime");
         }
         else
         {
             AudioManager.Stop("run");
+            AudioManager.Stop("slime");
         }
         _time = Time.time;
         GatherInput();
