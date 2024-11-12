@@ -93,14 +93,14 @@ public class MyCharacterController : MonoBehaviour
             
             
             // Hit a wall
-            //old
+            /*old
             // if (Physics2D.CapsuleCast(_col.bounds.center, _col.size, _col.direction, 0, Vector2.left, _stats.GrounderDistance, ~_stats.PlayerLayer)) {
             //     _wallJumpDirection = 1;
             // } else if (Physics2D.CapsuleCast(_col.bounds.center, _col.size, _col.direction, 0, Vector2.right, _stats.GrounderDistance, ~_stats.PlayerLayer)) {
             //     _wallJumpDirection = -1;
             // } else {
             //     _wallJumpDirection = 0;
-            // }
+             }*/
             
             //new
             if (_customCol.CanWallJumpRight)
@@ -120,10 +120,21 @@ public class MyCharacterController : MonoBehaviour
 
             // Hit a Ceiling
             //TODO: determine if this is necessary
-            //if (ceilingHit) _frameVelocity.y = Mathf.Min(0, _frameVelocity.y);
-
+            if (_customCol.HitCeiling) _frameVelocity.y = Mathf.Min(0, _frameVelocity.y);
+            
+            
+            // If landed on bounce, then set the y velocity
+            if (groundHit && !_grounded && _customCol.GroundState == 3)
+            {
+                _grounded = true;
+                _coyoteUsable = true;
+                _bufferedJumpUsable = true;
+                _endedJumpEarly = false;
+                GroundedChanged?.Invoke(true, Mathf.Abs(_frameVelocity.y));
+                _hitBounce = true;
+            }
             // Landed on the Ground
-            if (!_grounded && groundHit)
+            else if (!_grounded && groundHit)
             {                
                 _grounded = true;
                 _coyoteUsable = true;
@@ -239,8 +250,17 @@ public class MyCharacterController : MonoBehaviour
 
     #region Gravity
 
+    private bool _hitBounce;
+    
         private void HandleGravity()
         {
+            if (_hitBounce)
+            {
+                _frameVelocity.y = _frameVelocity.y > 0.3f ? 0f : -_frameVelocity.y;
+                _hitBounce = false;
+                return;
+            }
+            
             if (_grounded && _frameVelocity.y <= 0f)
             {
                 _frameVelocity.y = _stats.GroundingForce;

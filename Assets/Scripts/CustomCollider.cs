@@ -19,7 +19,10 @@ public class CustomCollider : MonoBehaviour
     public bool CanJump => m_groundedState.y == 1;
     public bool CanWallJumpLeft => m_groundedState.z == 1;
     public bool CanWallJumpRight => m_groundedState.x == 1;
-
+    public int GroundState => m_groundedState.y;
+    
+    public bool HitCeiling => m_groundedState.w > 0;
+    
     private void Start()
     {
         Manager.AddCollider(this);
