@@ -20,6 +20,8 @@ public class CutsceneManager : MonoBehaviour
         {
             public Sprite image;
             public string text;
+            public string soundClip;
+            public bool stopPreviousSound;
         }
         public List<Page> content;
         public int Count => content.Count;
@@ -60,7 +62,11 @@ public class CutsceneManager : MonoBehaviour
 
     private void LoadPage()
     {
-        m_image.sprite = currentCutscene[pageIndex].image;
-        m_text.text = currentCutscene[pageIndex].text;
+        var currentPage = currentCutscene[pageIndex];
+        m_image.sprite = currentPage.image;
+        m_text.text = currentPage.text;
+        if (currentPage.stopPreviousSound)
+            AudioManager.StopAll();
+        AudioManager.Play(currentPage.soundClip);
     }
 }

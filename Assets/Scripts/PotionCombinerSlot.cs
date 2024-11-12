@@ -13,6 +13,8 @@ public class PotionCombinerSlot : MonoBehaviour
     [SerializeField] private TMP_Text slotTypeText;
     [SerializeField] private Image backgroundImage;
 
+    private int quantity;
+
     private void Start()
     {
         backgroundImage.color = unselectedColor;
@@ -23,13 +25,16 @@ public class PotionCombinerSlot : MonoBehaviour
         slotTypeImage.sprite = _sprite;
     }
 
-    public void SetQuantityText(string _text)
+    public void SetQuantityText(string _text, int _quantity)
     {
+        quantity = _quantity;
         slotTypeText.text = _text;
     }
 
     public void onButtonPressed()
-    {   
+    {
+        if (quantity <= 0)
+            return;
         slotSelected = !slotSelected;
         backgroundImage.color = slotSelected ? selectedColor : unselectedColor;
     }

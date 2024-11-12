@@ -71,7 +71,7 @@ public class AudioManager : MonoBehaviour
         s.source.Stop();
     }
 
-    public static void StopAll(string name)
+    public static void StopAll()
     {
         foreach (Sound s in Me.m_sounds)
         {

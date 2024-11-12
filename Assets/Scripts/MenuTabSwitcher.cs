@@ -23,6 +23,12 @@ public class MenuTabSwitcher : MonoBehaviour
         m_tabDict[m_currentTab].gameObject.SetActive(true);
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            SwitchTab("Main");
+    }
+
     public void SwitchTab(string _newTab)
     {
         m_tabDict[m_currentTab].gameObject.SetActive(false);

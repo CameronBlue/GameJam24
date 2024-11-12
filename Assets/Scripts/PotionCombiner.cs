@@ -112,9 +112,9 @@ public class PotionCombiner : MonoBehaviour
             if (ResultType == -1)
                 return;
             
+            PlayerInventory.Me.AddPotion(PlayerInventory.Me.inventoryTypeReference[ResultType]);
             PlayerInventory.Me.RemovePotion(PlayerInventory.Me.inventoryTypeReference[ingredient1contents]);
             PlayerInventory.Me.RemovePotion(PlayerInventory.Me.inventoryTypeReference[ingredient2contents]);
-            PlayerInventory.Me.AddPotion(PlayerInventory.Me.inventoryTypeReference[ResultType]);
             
             acidSlot.Deselect();
             fireSlot.Deselect();
@@ -125,21 +125,23 @@ public class PotionCombiner : MonoBehaviour
 
     private void UpdateSlotNumbers()
     {
+        int[] quantities = new int[PlayerInventory.PLAT_INV_REF + 1];
         string[] quantityTexts = new string[PlayerInventory.PLAT_INV_REF + 1];
         for (int i = 0; i <= PlayerInventory.PLAT_INV_REF; ++i)
         {
             var isInput = (ingredient1full && i == ingredient1contents) || (ingredient2full && i == ingredient2contents);
             var isOutput = i == ResultType;
             var extra = isInput ? "<color=\"red\"> (-1)" : (isOutput ? "<color=\"green\"> (+1)" : "");
-            quantityTexts[i] = $"{PlayerInventory.Me.potionQuantities[i]}{extra}";
+            quantities[i] = PlayerInventory.Me.potionQuantities[i];
+            quantityTexts[i] = $"{quantities[i]}{extra}";
         }
         
-        acidSlot.SetQuantityText(quantityTexts[PlayerInventory.ACID_INV_REF]);
-        fireSlot.SetQuantityText(quantityTexts[PlayerInventory.FIRE_INV_REF]);
-        platSlot.SetQuantityText(quantityTexts[PlayerInventory.PLAT_INV_REF]);
-        gasSlot.SetQuantityText(quantityTexts[PlayerInventory.GAS_INV_REF]);
-        slimeSlot.SetQuantityText(quantityTexts[PlayerInventory.SLIME_INV_REF]);
-        bounceSlot.SetQuantityText(quantityTexts[PlayerInventory.BOUNCE_INV_REF]);
+        acidSlot.SetQuantityText(quantityTexts[PlayerInventory.ACID_INV_REF], quantities[PlayerInventory.ACID_INV_REF]);
+        fireSlot.SetQuantityText(quantityTexts[PlayerInventory.FIRE_INV_REF], quantities[PlayerInventory.FIRE_INV_REF]);
+        platSlot.SetQuantityText(quantityTexts[PlayerInventory.PLAT_INV_REF], quantities[PlayerInventory.PLAT_INV_REF]);
+        gasSlot.SetQuantityText(quantityTexts[PlayerInventory.GAS_INV_REF], quantities[PlayerInventory.GAS_INV_REF]);
+        slimeSlot.SetQuantityText(quantityTexts[PlayerInventory.SLIME_INV_REF], quantities[PlayerInventory.SLIME_INV_REF]);
+        bounceSlot.SetQuantityText(quantityTexts[PlayerInventory.BOUNCE_INV_REF], quantities[PlayerInventory.BOUNCE_INV_REF]);
     }
     
     private int CombinePotions()

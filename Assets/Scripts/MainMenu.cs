@@ -22,6 +22,8 @@ public class MainMenu : MonoBehaviour
 
     public void ClickedStart()
     {
+        if (Time.timeSinceLevelLoad < Time.fixedDeltaTime)
+            return;
         SaveManager.Me.Restart(Input.GetKey(KeyCode.F));
     }
 
@@ -46,5 +48,10 @@ public class MainMenu : MonoBehaviour
     {
         m_startLevelButton.interactable = false;
         m_continueButton.interactable = SaveManager.Me.CanContinue;
+    }
+    
+    public void ClickedQuit()
+    {
+        Application.Quit();
     }
 }

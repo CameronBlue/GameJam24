@@ -652,8 +652,8 @@ public class GridHandler : MonoBehaviour
         {
             m_searchedCells.Add(_pos);
             ref Cell cell = ref m_cells.RefAt(_pos.x + _pos.y * m_width);
-            var canAdd = m_replaceMode ? !cell.IsEmpty && !cell.IsNull && !cell.IsType(m_cell.m_type) : cell.IsEmpty || cell.IsType(m_cell.m_type);
-            var hasRoom = m_replaceMode || cell.IsFluid(m_cellProperties, true) || cell.m_amount < 1f;
+            var canAdd = m_replaceMode ? !cell.IsNull && !cell.IsType(m_cell.m_type) : cell.IsEmpty || cell.IsType(m_cell.m_type);
+            var hasRoom = m_replaceMode ? !cell.IsEmpty : (cell.IsFluid(m_cellProperties, true) || cell.m_amount < 1f);
             if (canAdd && hasRoom)
             {
                 var wasFluid = cell.IsFluid(m_cellProperties, false);

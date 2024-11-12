@@ -112,6 +112,6 @@ public class PotionSlotManager : MonoBehaviour
     private int Mod(int x)
     {
         int y = currentPotionSlots.Count;
-        return (x < 0) ? (y - (-x % y)) : (x % y);
+        return (x >= 0 ? x : y - (-x % y)) % y;
     }
 }
