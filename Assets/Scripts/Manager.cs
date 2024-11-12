@@ -20,6 +20,9 @@ public class Manager : MonoBehaviour
     
     private List<CustomCollider> m_colliderUpdateList = new();
     private List<(Vector2, GridHandler.Cell)> m_addIntoGridList = new();
+
+    [NonSerialized]
+    public float m_lastExplosionTime = -1f;
     
     private void Awake()
     {

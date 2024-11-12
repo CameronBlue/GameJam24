@@ -2,9 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Random = System.Random;
 
 public class Character : MonoBehaviour
 {
+    private const float c_ExplosionStrength = 0.5f;
+    private const float c_ExplosionDuration = 0.3f;
+    
     private const float c_CameraTightness = 0.2f;
 
     public static Character Me;
@@ -91,6 +95,11 @@ public class Character : MonoBehaviour
     {
         m_smoothedPos = Vector3.Lerp(m_smoothedPos, transform.position, c_CameraTightness);
         m_smoothedPos.z = m_mainCam.transform.position.z;
+
+        if (Time.time <= Manager.Me.m_lastExplosionTime + c_ExplosionDuration)
+        {
+            m_smoothedPos += (UnityEngine.Random.insideUnitCircle * c_ExplosionStrength).AddZ();
+        }
         m_mainCam.transform.position = m_smoothedPos;
     }
 }

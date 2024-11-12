@@ -63,6 +63,7 @@ public class Potion : MonoBehaviour
         if (m_type == GridHandler.Cell.Type.Gas)
         {
             AudioManager.PlayAtPoint("explosion", transform.position);
+            Manager.Me.m_lastExplosionTime = Time.time;
             GridHandler.Me.Explode(transform.position, 50);
             return;
         }
