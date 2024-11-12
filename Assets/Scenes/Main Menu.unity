@@ -1213,6 +1213,10 @@ MonoBehaviour:
     m_data: {fileID: 2800000, guid: 2c65f5d72428d56439694dcf9ef288bc, type: 3}
     m_potions: 010000000000000001000000000000000000000000000000
     m_final: 1
+  - m_name: Performance Test
+    m_data: {fileID: 2800000, guid: a9f077b6f07f06143a77e8076528b716, type: 3}
+    m_potions: 020000000000000000000000010000000000000000000000
+    m_final: 0
 --- !u!4 &876468077
 Transform:
   m_ObjectHideFlags: 0
