@@ -57,8 +57,10 @@ public class PotionSlotManager : MonoBehaviour
         }
         if (!changed) 
             return;
-        
-        UpdateSelection();
+        //temp fix for playtesting
+        StartMe();
+        //real
+        //UpdateSelection();
     }
 
     public void PotionTypeFinished(GridHandler.Cell.Type _type)

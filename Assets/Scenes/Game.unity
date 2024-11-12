@@ -585,7 +585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   localCenter: {x: 0, y: 0}
-  size: {x: 1.02, y: 0.92}
+  size: {x: 0.6, y: 0.92}
 --- !u!95 &170300172
 Animator:
   serializedVersion: 7
@@ -785,7 +785,7 @@ MonoBehaviour:
     edgeNeedsEmpty: 0
     viscosity: 1
     corrosivity: 0
-    corrodability: 1
+    corrodability: 5
     heat: 0
     flammability: 0
     explosivity: 0
@@ -910,7 +910,7 @@ MonoBehaviour:
     weight: 1.2
     edgeNeedsEmpty: 0
     viscosity: 0.1
-    corrosivity: 10
+    corrosivity: 5
     corrodability: 0
     heat: 0
     flammability: 0
