@@ -47,18 +47,6 @@ public class Character : MonoBehaviour
     private void Update()
     {
         UpdateAnimator();
-
-        if (!m_potionCombiner.activeSelf)
-        {
-            UpdateGun();
-        }
-
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            var nextActive = !m_potionCombiner.activeSelf;
-            nextActive &= PotionSlotManager.Me.CanCombine;
-            m_potionCombiner.SetActive(nextActive);
-        }
     }
     
     private void UpdateAnimator()
@@ -70,15 +58,14 @@ public class Character : MonoBehaviour
         m_anim.SetBool("Moving", speed > 0.1f);
     }
 
-    private void UpdateGun()
+    public void UpdateGun()
     {
         if (m_potionType == GridHandler.Cell.Type.Null)
             return;
         
         var target = m_mainCam.ScreenToWorldPoint(Input.mousePosition);
         target.z = 0;
-        if (Input.GetMouseButtonDown(0))
-            Shoot(target);
+        Shoot(target);
     }
 
     private void Shoot(Vector2 _target)

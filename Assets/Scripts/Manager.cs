@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
@@ -16,14 +17,17 @@ public class Manager : MonoBehaviour
     public static Manager Me;
     
     public RawImage m_background;
+    public RectTransform m_combiner;
+    public RectTransform m_controls;
     
     private List<CustomCollider> m_colliderUpdateList = new();
-    private List<(Vector2, GridHandler.Cell)> m_addIntoGridList = new();
 
     [NonSerialized]
     public float m_lastExplosionTime = -1f;
 
-    [NonSerialized] public bool m_inMenu;
+    private bool m_combinerUp;
+    private bool m_controlsUp;
+    public bool GUIUp => m_combinerUp || m_controlsUp;
     
     private void Awake()
     {
@@ -34,7 +38,51 @@ public class Manager : MonoBehaviour
     {
         PlayerInventory.Me.StartMe();
         PotionSlotManager.Me.StartMe();
-        PotionCombiner.Me.StartMe();
+        m_combinerUp = PotionCombiner.Me.StartMe();
+        Time.timeScale = m_combinerUp ? 0f : 1f;
+    }
+
+    public void ClickedHelp()
+    {
+        m_controlsUp = true;
+        m_controls.gameObject.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    private void PressedF()
+    {
+        if (m_controlsUp)
+        {
+            m_controlsUp = false;
+            m_controls.gameObject.SetActive(false);
+        }
+        else if (m_combinerUp)
+        {
+            m_combinerUp = !m_combinerUp;
+            m_combinerUp &= PotionSlotManager.Me.CanCombine;
+            m_combiner.gameObject.SetActive(m_combinerUp);
+        }
+        Time.timeScale = m_combinerUp ? 0f : 1f;
+    }
+
+    private void Clicked()
+    {
+        if (!IsPointerOverUIElement())
+            Character.Me.UpdateGun();
+    }
+    
+    private bool IsPointerOverUIElement()
+    {
+        var eventData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+        for (int index = 0; index < results.Count; index++)
+        {
+            RaycastResult curRaysastResult = results[index];
+            if (curRaysastResult.gameObject.layer == LayerMask.NameToLayer("UI"))
+                return true;
+        }
+        return false;
     }
 
     #region Gizmos
@@ -88,11 +136,6 @@ public class Manager : MonoBehaviour
     }
     #endregion Gizmos
     
-    public static void AddIntoGrid(Vector2 _pos, GridHandler.Cell _cell)
-    {
-        Me.m_addIntoGridList.Add((_pos, _cell));
-    }
-    
     public static void AddCollider(CustomCollider _collider)
     {
         Me.m_colliderUpdateList.Add(_collider);
@@ -119,8 +162,13 @@ public class Manager : MonoBehaviour
         var pos = GridHandler.Me.DebugPoint(point);
         AddGizmoSquare("MouseOverBlock", pos + c_CellRadius * Vector2.one, c_CellDiameter * Vector2.one, Color.red);
 #endif
-        if (Input.GetKeyDown(KeyCode.P))
-            Time.timeScale = 1f - Time.timeScale;
+        
+        
+
+        if (Input.GetKeyDown(KeyCode.F))
+            PressedF();
+        if (Input.GetMouseButtonDown(0))
+            Clicked();
         if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.R))
             SaveManager.Me.RestartLevel();
         if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.Escape))
@@ -130,7 +178,6 @@ public class Manager : MonoBehaviour
     private void FixedUpdate()
     {
         GridHandler.Me.CompleteFluidUpdate();
-        AddAllIntoGrid();
         RunAllCollisions();
         GridHandler.Me.UpdateFluids();
         Character.Me.FixedUpdateMe();
@@ -160,12 +207,5 @@ public class Manager : MonoBehaviour
             var newPos = GridHandler.Me.GetPositionFloat(result.GetCentre);
             coll.UpdateWithResults(newPos, result.m_velocity, result.m_bounceAround, result.m_slimeAround, result.m_blocksAround);
         }
-    }
-
-    private void AddAllIntoGrid()
-    {
-        foreach (var (pos, cell) in m_addIntoGridList)
-            GridHandler.Me.AddIntoGrid(pos, cell);
-        m_addIntoGridList.Clear();
     }
 }
