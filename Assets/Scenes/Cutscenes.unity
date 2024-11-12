@@ -524,29 +524,49 @@ MonoBehaviour:
     - image: {fileID: 21300000, guid: be388046f33cbba408b50c4390cf718a, type: 3}
       text: My wife has been sick for so long...\nI became a witch to help her, but
         the College of Mages didn't accept me.
+      soundClip: sad
+      stopPreviousSound: 1
     - image: {fileID: 21300000, guid: 493a3ff5e959bad4e94861653188d463, type: 3}
       text: They're the only ones with access to the cure spell. So I had to take
         matters into my own hands...
+      soundClip: c1p2
+      stopPreviousSound: 1
     - image: {fileID: 21300000, guid: 8a527bf6407e24148bdf7f1b07b1bac2, type: 3}
       text: You should have considered the consequences before trying to steal from
         the College!
+      soundClip: game
+      stopPreviousSound: 1
     - image: {fileID: 21300000, guid: e0a337ed7fd65e542a451e78e3fa4650, type: 3}
       text: Good luck getting out of here, witch. With that rune, you'll never be
         able to do magic ever again.
+      soundClip: jail
+      stopPreviousSound: 0
     - image: {fileID: 21300000, guid: ffb6aa7aa8844ee43af45cd1fce617c1, type: 3}
       text: I might not have my magic, but you know what I do have?
+      soundClip: 
+      stopPreviousSound: 0
     - image: {fileID: 21300000, guid: 6c00a82faf59b3f46b9e54b1bc339f04, type: 3}
       text: My potions!
+      soundClip: acid
+      stopPreviousSound: 0
   - content:
     - image: {fileID: 21300000, guid: 7faead01770211a47aa4e8a7f257ca70, type: 3}
       text: After everything I've learned about potions, I figured out a way to cure
         her. The Ultimate Potion. All of the ingredients, mixed into one.
+      soundClip: revive_potion
+      stopPreviousSound: 1
     - image: {fileID: 21300000, guid: 9651f242e08b24447879c7221763bc65, type: 3}
       text: 
+      soundClip: 
+      stopPreviousSound: 1
     - image: {fileID: 21300000, guid: 8e9aae08f73c6fd4ca48dc48fcefdff3, type: 3}
       text: ...it really worked!
+      soundClip: happy
+      stopPreviousSound: 0
     - image: {fileID: 21300000, guid: f9e37435f65de4d43a2a4a3791986424, type: 3}
       text: Credits or something here
+      soundClip: 
+      stopPreviousSound: 0
 --- !u!1 &1254326247
 GameObject:
   m_ObjectHideFlags: 0
