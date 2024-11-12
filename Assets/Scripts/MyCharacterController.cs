@@ -74,6 +74,7 @@ public class MyCharacterController : MonoBehaviour
         //HandleWallJump();
         HandleDirection();
         HandleGravity();
+        HandleWallBounce();
             
         ApplyMovement();
     }
@@ -113,10 +114,18 @@ public class MyCharacterController : MonoBehaviour
             if (_customCol.CanWallJumpRight)
             {
                 _wallJumpDirection = 1;
+                if (_customCol.RightWallState == 2)
+                {
+                    leftWallBounce = true;
+                }
             } 
             else if (_customCol.CanWallJumpLeft)
             {
                 _wallJumpDirection = -1;
+                if (_customCol.LeftWallState == 2)
+                {
+                    leftWallBounce = true;
+                }
             }
             else
             {
@@ -126,14 +135,11 @@ public class MyCharacterController : MonoBehaviour
             bool wallHit = (_wallJumpDirection != 0);
 
             // Hit a Ceiling
-            //TODO: determine if this is necessary
             if (_customCol.HitCeiling) _frameVelocity.y = Mathf.Min(0, _frameVelocity.y);
             
-            print(_customCol.GroundState);
-            // If landed on bounce, then set the y velocity
+            // Landed on bounce
             if (groundHit && !_grounded && _customCol.GroundState == 2)
             {
-                print("landed on bounce");
                 _grounded = true;
                 _coyoteUsable = true;
                 _bufferedJumpUsable = true;
@@ -282,6 +288,21 @@ public class MyCharacterController : MonoBehaviour
             }
         }
 
+    #endregion
+    
+    #region WallBounce
+
+    private bool leftWallBounce;
+    private bool rightWallBounce;
+    
+    private void HandleWallBounce()
+    {
+        if (leftWallBounce || rightWallBounce)
+        {
+            _frameVelocity.x = Mathf.Abs(_frameVelocity.x) < 0.3f ? 0f : -1.6f*_frameVelocity.x;
+        } ;
+    }
+    
     #endregion
 
     private void ApplyMovement()
