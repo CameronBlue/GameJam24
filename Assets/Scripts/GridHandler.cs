@@ -97,8 +97,6 @@ public class GridHandler : MonoBehaviour
         public float heat;
         [Tooltip("How likely a tile is to catch on fire")]
         public float flammability;
-        [Tooltip("How big a tile's explosion is")]
-        public float explosivity;
         [Tooltip("How likely a tile is to be exploded")]
         public float explodability;
         [Tooltip("Whether this liquid solidifies on contact with solid blocks")]
@@ -122,6 +120,7 @@ public class GridHandler : MonoBehaviour
     private JobHandle fluidUpdateJob;
 
     private int2 m_spawnPoint;
+    private int2 m_endPoint;
     
     private void Awake()
     {
@@ -131,6 +130,11 @@ public class GridHandler : MonoBehaviour
     public Vector2 GetSpawnPoint()
     {
         return GetPosition(new(m_spawnPoint.x, m_spawnPoint.y));
+    }
+    
+    public Vector2 GetEndPoint()
+    {
+        return GetPosition(new(m_endPoint.x, m_endPoint.y));
     }
     
     private void Start()
@@ -176,6 +180,7 @@ public class GridHandler : MonoBehaviour
         fillMapJob.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
         fillMapJob.GetSpecialCells(out var specialCells);
         m_spawnPoint = specialCells[0];
+        m_endPoint = specialCells[1];
         
         var findFluidsJob = new FindFluidsJob(m_cells, m_cellPropertiesNative, m_fluidCells, m_levelWidth, m_levelHeight);
         findFluidsJob.Schedule().Complete();
@@ -195,7 +200,7 @@ public class GridHandler : MonoBehaviour
             m_texture = _image.GetRawTextureData<byte>();
             m_width = _image.width;
             m_height = _image.height;
-            m_specialCells = new NativeArray<int2>(1, Allocator.TempJob);
+            m_specialCells = new NativeArray<int2>(2, Allocator.TempJob);
         }
         
         public void Execute(int _index)
@@ -205,9 +210,9 @@ public class GridHandler : MonoBehaviour
             var b = m_texture[4 * _index + 2];
             var a = m_texture[4 * _index + 3];
 
-            if (r == 255 && g == 255 && b == 255)
+            if (r == 255 && g == 255)
             {
-                m_specialCells[0] = new(_index % m_width, _index / m_width);
+                m_specialCells[1 - (b / 255)] = new(_index % m_width, _index / m_width);
                 m_cells[_index] = new Cell { m_type = Cell.Type.Empty, m_amount = 0f };
                 return;
             }

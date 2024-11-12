@@ -20,6 +20,7 @@ public class SaveManager : MonoBehaviour
         public string m_name;
         public Texture2D m_data;
         public int[] m_potions = new int[6];
+        public bool m_final;
     }
     
     public Level[] m_levels;
@@ -49,6 +50,11 @@ public class SaveManager : MonoBehaviour
         var copy = new int[6];
         GetLevel().m_potions.CopyTo(copy, 0);
         return copy;
+    }
+    
+    public bool GetIsFinal()
+    {
+        return GetLevel().m_final;
     }
 
     private Level GetLevel()

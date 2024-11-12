@@ -17,7 +17,6 @@ public class Manager : MonoBehaviour
     
     public RawImage m_background;
     public Transform m_fluidPixelHolder;
-    public Transform m_character;
     
     private List<CustomCollider> m_colliderUpdateList = new();
     private List<(Vector2, GridHandler.Cell)> m_addIntoGridList = new(); 
@@ -120,8 +119,6 @@ public class Manager : MonoBehaviour
             Time.timeScale = 1f - Time.timeScale;
         if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.R))
             SaveManager.Me.RestartLevel();
-        if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.N))
-            SaveManager.Me.LevelComplete();
         if (SaveManager.Me != null && Input.GetKeyDown(KeyCode.Escape))
             SaveManager.Me.ExitToMenu();
     }
