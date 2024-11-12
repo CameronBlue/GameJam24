@@ -19,7 +19,7 @@ public class Manager : MonoBehaviour
     public Transform m_fluidPixelHolder;
     
     private List<CustomCollider> m_colliderUpdateList = new();
-    private List<(Vector2, GridHandler.Cell)> m_addIntoGridList = new(); 
+    private List<(Vector2, GridHandler.Cell)> m_addIntoGridList = new();
     
     private void Awake()
     {
@@ -29,8 +29,8 @@ public class Manager : MonoBehaviour
     private void Start()
     {
         PlayerInventory.Me.StartMe();
-        PotionCombiner.Me.StartMe();
         PotionSlotManager.Me.StartMe();
+        PotionCombiner.Me.StartMe();
     }
 
     #region Gizmos

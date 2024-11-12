@@ -17,6 +17,8 @@ Shader "Custom/GridImageShader"
         _Tex9 ("Texture 9", 2D) = "white" {}
         _Tex10 ("Texture 10", 2D) = "white" {}
         _Tex11 ("Texture 11", 2D) = "white" {}
+        _Tex12 ("Texture 12", 2D) = "white" {}
+        _Tex13 ("Texture 13", 2D) = "white" {}
     }
     SubShader
     {
@@ -49,6 +51,8 @@ Shader "Custom/GridImageShader"
             sampler2D _Tex9;
             sampler2D _Tex10;
             sampler2D _Tex11;
+            sampler2D _Tex12;
+            sampler2D _Tex13;
 
             struct appdata
             {
@@ -119,6 +123,10 @@ Shader "Custom/GridImageShader"
                     final_col = tex2D(_Tex10, uv);
                 else if (type == 12)
                     final_col = tex2D(_Tex11, uv);
+                else if (type == 13)
+                    final_col = tex2D(_Tex12, uv);
+                else if (type == 14)
+                    final_col = tex2D(_Tex13, uv);
                 else
                     final_col = fixed4(c.rgb, 1);
                 

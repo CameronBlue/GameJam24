@@ -127,25 +127,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 469521842}
     m_Modifications:
-    - target: {fileID: 3604065902856904914, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_TargetGraphic
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4825408523733383035, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_TargetGraphic
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 5483570497316726791, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_Name
       value: Potion Combiner
-      objectReference: {fileID: 0}
-    - target: {fileID: 6637433215735801837, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_TargetGraphic
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 8624296930198052261, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_TargetGraphic
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8882579416616146415, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_Pivot.x
@@ -226,14 +210,6 @@ PrefabInstance:
     - target: {fileID: 8882579416616146415, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9035349437036401348, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_TargetGraphic
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 9205517523821614205, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_TargetGraphic
-      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -897,9 +873,9 @@ MonoBehaviour:
     colour2:
       serializedVersion: 2
       rgba: 4280468735
-    weight: 0
+    weight: -0.1
     edgeNeedsEmpty: 0
-    viscosity: 0
+    viscosity: 0.8
     corrosivity: 0
     corrodability: 0
     heat: 0
@@ -959,6 +935,42 @@ MonoBehaviour:
     heat: 0
     flammability: 0
     explodability: 0
+    decayRate: 0
+    crystallisable: 0
+  - type: 13
+    potionStyle: 2
+    colour:
+      serializedVersion: 2
+      rgba: 4294909470
+    colour2:
+      serializedVersion: 2
+      rgba: 4290052137
+    weight: 0
+    edgeNeedsEmpty: 0
+    viscosity: 1
+    corrosivity: 0
+    corrodability: 0
+    heat: 0
+    flammability: 0
+    explodability: 1
+    decayRate: 0
+    crystallisable: 0
+  - type: 14
+    potionStyle: 2
+    colour:
+      serializedVersion: 2
+      rgba: 4294909470
+    colour2:
+      serializedVersion: 2
+      rgba: 4290052137
+    weight: 0
+    edgeNeedsEmpty: 0
+    viscosity: 1
+    corrosivity: 0
+    corrodability: 1
+    heat: 0
+    flammability: 1
+    explodability: 1
     decayRate: 0
     crystallisable: 0
   m_image: {fileID: 1952815454}

@@ -32,8 +32,23 @@ public class PotionCombiner : MonoBehaviour
         Me = this;
     }
 
+    private void OnEnable()
+    {
+        Time.timeScale = 0f;
+    }
+
+    private void OnDisable()
+    {
+        Time.timeScale = 1f;
+    }
+
     public void StartMe()
     {
+        bool canCombine = PotionSlotManager.Me.CanCombine;
+        gameObject.SetActive(canCombine);
+        if (!canCombine)
+            return;
+        
         potionIcons = new [] { fireIcon, gasIcon, acidIcon, bounceIcon, slimeIcon, platformIcon };
         
         acidSlot.SetSprite(acidIcon);

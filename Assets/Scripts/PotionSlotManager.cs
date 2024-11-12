@@ -23,6 +23,7 @@ public class PotionSlotManager : MonoBehaviour
     [SerializeField] private Image smallImageRight;
     [SerializeField] private List<PotionSlot> currentPotionSlots;
     private int currentSelection = 0;
+    public bool CanCombine => currentPotionSlots.Count > 1;
 
     private void Awake()
     {

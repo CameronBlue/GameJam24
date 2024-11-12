@@ -31,6 +31,8 @@ public class GridHandler : MonoBehaviour
             Slime,
             Bounce,
             Bedrock,
+            Rubble,
+            Hay,
             Null //A real cell should never be this type 
         }
         

@@ -51,9 +51,9 @@ public class Character : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F))
         {
-            var currentlyActive = m_potionCombiner.activeSelf;
-            m_potionCombiner.SetActive(!currentlyActive);
-            Time.timeScale = currentlyActive ? 1f : 0f;
+            var nextActive = !m_potionCombiner.activeSelf;
+            nextActive &= PotionSlotManager.Me.CanCombine;
+            m_potionCombiner.SetActive(nextActive);
         }
     }
     
