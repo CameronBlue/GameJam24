@@ -37,7 +37,7 @@ public class MyCharacterController : MonoBehaviour
     {
         if (_grounded && _rb.linearVelocity.x != 0)
         {
-            AudioManager.Play("run", true);
+            AudioManager.Play("run", false);
         }
         else
         {
@@ -321,6 +321,7 @@ public class MyCharacterController : MonoBehaviour
             
             if (_hitBounce)
             {
+                AudioManager.Play("jump")
                 _frameVelocity.y = Mathf.Abs(_frameVelocity.y) < 0.3f ? 0f : -1.6f*(_frameVelocity.y);
                 _hitBounce = false;
                 _endedJumpEarly = true;
