@@ -1,41 +1,38 @@
+using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class PotionCombinerSlot : MonoBehaviour
 {
-    private RectTransform m_rt;
-
-    [HideInInspector] public GridHandler.Cell.Type slotType;
-
-    [HideInInspector] public Sprite slotSprite;
-    [HideInInspector] public int slotNumber;
+    [NonSerialized] public int slotNumber;
+    [NonSerialized] public bool slotSelected;
     
-    [HideInInspector] public bool slotSelected;
-    
+    [SerializeField] private Color selectedColor;
+    [SerializeField] private Color unselectedColor;
     [SerializeField] private Image slotTypeImage;
     [SerializeField] private TMP_Text slotTypeText;
     [SerializeField] private Image backgroundImage;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
-        m_rt = GetComponent<RectTransform>();
-        slotSelected = false;
+        backgroundImage.color = unselectedColor;
+    }
+
+    public void SetSprite(Sprite _sprite)
+    {
+        slotTypeImage.sprite = _sprite;
     }
 
     void Update()
     {
-        slotTypeImage.sprite = slotSprite;
         slotTypeText.text = slotNumber.ToString();
     }
 
     public void onButtonPressed()
     {   
         slotSelected = !slotSelected;
-        backgroundImage.color = slotSelected ? new Color(255f, 255f, 255f) : new Color(0, 0, 0);
-        slotTypeText.color = !slotSelected ? new Color(255f, 255f, 255f) : new Color(0, 0, 0);
-        
+        backgroundImage.color = slotSelected ? selectedColor : unselectedColor;
+        //slotTypeText.color = !slotSelected ? new Color(255f, 255f, 255f) : new Color(0, 0, 0);
     }
 }

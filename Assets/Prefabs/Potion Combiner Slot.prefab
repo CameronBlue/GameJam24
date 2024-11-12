@@ -196,7 +196,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -353,7 +353,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3105765934621751360}
   - component: {fileID: 2446943928256399614}
-  - component: {fileID: 3257925227029354624}
   m_Layer: 5
   m_Name: Potion Combiner Slot
   m_TagString: Untagged
@@ -395,18 +394,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f98e0d930f1d6946a1bdad831c0b637, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slotType: 0
-  slotSprite: {fileID: 0}
-  slotNumber: 0
-  slotSelected: 0
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  unselectedColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 1}
   slotTypeImage: {fileID: 4106545594956351763}
   slotTypeText: {fileID: 2613537140176712873}
   backgroundImage: {fileID: 2263775104498523063}
---- !u!222 &3257925227029354624
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7483811132890436099}
-  m_CullTransparentMesh: 1

@@ -13,7 +13,8 @@ public class PotionCombiner : MonoBehaviour
     public PotionCombinerSlot gasSlot;
     public PotionCombinerSlot slimeSlot;
     public PotionCombinerSlot bounceSlot;
-    
+
+    [SerializeField] private Sprite emptyIcon;
     [SerializeField] private Sprite acidIcon;
     [SerializeField] private Sprite fireIcon;
     [SerializeField] private Sprite bounceIcon;
@@ -35,29 +36,16 @@ public class PotionCombiner : MonoBehaviour
         
         potionIcons = new [] { fireIcon, gasIcon, acidIcon, bounceIcon, slimeIcon, platformIcon };
         
-        PlayerInventory inv = PlayerInventory.Me;
-        acidSlot.slotSprite = acidIcon;
-        acidSlot.slotType = inv.inventoryTypeReference[PlayerInventory.ACID_INV_REF];
-        
-        fireSlot.slotSprite = fireIcon;
-        fireSlot.slotType = inv.inventoryTypeReference[PlayerInventory.FIRE_INV_REF];
-        
-        platSlot.slotSprite = platformIcon;
-        platSlot.slotType = inv.inventoryTypeReference[PlayerInventory.PLAT_INV_REF];
-        gasSlot.slotSprite = gasIcon;
-        gasSlot.slotType = inv.inventoryTypeReference[PlayerInventory.GAS_INV_REF];
-        
-        slimeSlot.slotSprite = slimeIcon;
-        slimeSlot.slotType = inv.inventoryTypeReference[PlayerInventory.SLIME_INV_REF];
-        
-        bounceSlot.slotSprite = bounceIcon;
-        bounceSlot.slotType = inv.inventoryTypeReference[PlayerInventory.BOUNCE_INV_REF];
+        acidSlot.SetSprite(acidIcon);
+        fireSlot.SetSprite(fireIcon);
+        platSlot.SetSprite(platformIcon);
+        gasSlot.SetSprite(gasIcon);
+        slimeSlot.SetSprite(slimeIcon);
+        bounceSlot.SetSprite(bounceIcon);
         
         UpdateSlotNumbers();
         
     }
-
-    // Update is called once per frame
     
     bool ingredient1full;
     bool ingredient2full;
@@ -71,8 +59,8 @@ public class PotionCombiner : MonoBehaviour
         UpdateCombineSlots(fireSlot.slotSelected, PlayerInventory.FIRE_INV_REF);
         UpdateCombineSlots(bounceSlot.slotSelected, PlayerInventory.BOUNCE_INV_REF);
         
-        ingredient1.sprite = ingredient1full ? potionIcons[ingredient1contents] : null;
-        ingredient2.sprite = ingredient2full ? potionIcons[ingredient2contents] : null;
+        ingredient1.sprite = ingredient1full ? potionIcons[ingredient1contents] : emptyIcon;
+        ingredient2.sprite = ingredient2full ? potionIcons[ingredient2contents] : emptyIcon;
     }
 
     private void UpdateCombineSlots(bool slotActive, int inventoryRef)
