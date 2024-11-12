@@ -42,6 +42,15 @@ public class Potion : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (m_customColl.Colliding && m_customColl.GroundState == 2)
+        {
+            print("potion Bounce triggered");
+            //Vector2 _force = new Vector2(0, -_prevVelocity.y);
+            
+            m_rb.linearVelocity = new Vector2(_prevVelocity.x, -_prevVelocity.y);
+            //m_rb.AddForce(_force, ForceMode2D.Impulse);
+            return;
+        }
         if (m_customColl.Colliding)
         {
             if (m_potionStyle != 0)
