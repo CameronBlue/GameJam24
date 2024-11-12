@@ -83,7 +83,7 @@ public class Character : MonoBehaviour
 
     private void Shoot(Vector2 _target)
     {
-        var startPos = (Vector2)transform.position;
+        var startPos = (Vector2)transform.position+0.5f*Vector2.up;
         var force = (_target - startPos).normalized * 10f + m_rb.linearVelocity;
         var potion = Instantiate(m_PotionPrefab, startPos, Quaternion.identity);
         potion.Init(force, 250, m_potionType);

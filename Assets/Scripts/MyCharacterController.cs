@@ -33,6 +33,13 @@ public class MyCharacterController : MonoBehaviour
     
     private void Update()
     {
+        if (_grounded && _rb.linearVelocity.x != 0)
+        {
+            AudioManager.Play("run", true);
+        } else
+        {
+            AudioManager.Stop("run");
+        }
         _time = Time.time;
         GatherInput();
     }
@@ -188,7 +195,7 @@ public class MyCharacterController : MonoBehaviour
 
         private void HandleJump()
         {
-        
+
             if (!_endedJumpEarly && !_grounded && !_frameInput.JumpHeld && _rb.linearVelocity.y > 0) _endedJumpEarly = true;
 
             if (!_jumpToConsume && !HasBufferedJump) return;
@@ -221,6 +228,7 @@ public class MyCharacterController : MonoBehaviour
 
         private void ExecuteJump()
         {
+            AudioManager.Play("jump");
             _endedJumpEarly = false;
             _timeJumpWasPressed = 0;
             _bufferedJumpUsable = false;
