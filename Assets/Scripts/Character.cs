@@ -72,8 +72,8 @@ public class Character : MonoBehaviour
     {
 
         AudioManager.Play("throw");
-        var startPos = (Vector2)transform.position+0.5f*Vector2.up;
-        var force = (_target - startPos).normalized * 20f + m_rb.linearVelocity;
+        var startPos = (Vector2)transform.position + 0.5f * Vector2.up;
+        var force = (_target - startPos).normalized * 15f + m_rb.linearVelocity;
         var potion = Instantiate(m_PotionPrefab, startPos, Quaternion.identity);
         potion.Init(force, 250, m_potionType);
         

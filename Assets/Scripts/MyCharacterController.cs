@@ -320,9 +320,7 @@ public class MyCharacterController : MonoBehaviour
             if (_touchingSlimeCeiling)
             {
                 _frameVelocity.y = 0;
-                print("on slime");
                 return;
-                
             }
             
             
