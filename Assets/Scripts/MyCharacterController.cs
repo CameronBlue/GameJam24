@@ -10,7 +10,8 @@ public class MyCharacterController : MonoBehaviour
     private FrameInput _frameInput;
     private Vector2 _frameVelocity;
     private bool _cachedQueryStartInColliders;
-
+    
+    private SpriteRenderer m_sr;
     #region Interface
 
     public Vector2 FrameInput => _frameInput.Move;
@@ -26,6 +27,7 @@ public class MyCharacterController : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _customCol = GetComponent<CustomCollider>();
+        m_sr = GetComponent<SpriteRenderer>();
         
         _cachedQueryStartInColliders = Physics2D.queriesStartInColliders;
     }
@@ -36,7 +38,8 @@ public class MyCharacterController : MonoBehaviour
         if (_grounded && _rb.linearVelocity.x != 0)
         {
             AudioManager.Play("run", true);
-        } else
+        }
+        else
         {
             AudioManager.Stop("run");
         }
@@ -84,7 +87,10 @@ public class MyCharacterController : MonoBehaviour
         private float _frameLeftGrounded = float.MinValue;
         private bool _grounded;
         private bool _touchingWall;
-        
+
+
+        private bool _touchingSlimeCeiling;
+        private bool _touchingSlimeWall;
 
         private void CheckCollisions()
         {
@@ -135,7 +141,26 @@ public class MyCharacterController : MonoBehaviour
             bool wallHit = (_wallJumpDirection != 0);
 
             // Hit a Ceiling
-            if (_customCol.HitCeiling) _frameVelocity.y = Mathf.Min(0, _frameVelocity.y);
+            if (_customCol.HitCeiling)
+            {
+                if (_customCol.CeilingState == 3)
+                {
+                    m_sr.flipY = true;
+                    _touchingSlimeCeiling = true;
+                }
+                _frameVelocity.y = 0;
+                _endedJumpEarly = true;
+            }
+            
+            //Left Slime
+            if (_customCol.CeilingState != 3 && _touchingSlimeCeiling)
+            {
+                _touchingSlimeCeiling = false;
+                m_sr.flipY = false;
+            }
+            
+            
+            
             
             // Landed on bounce
             if (groundHit && !_grounded && _customCol.GroundState == 2)
@@ -207,6 +232,14 @@ public class MyCharacterController : MonoBehaviour
 
             if (!_jumpToConsume && !HasBufferedJump) return;
 
+            if (_touchingSlimeCeiling)
+            {
+                _frameVelocity.y = -2f;
+                _touchingSlimeCeiling = false;
+                m_sr.flipY = false;
+                return;
+            }
+
             if (_grounded || CanUseCoyote) ExecuteJump();
 
             _jumpToConsume = false;
@@ -277,6 +310,15 @@ public class MyCharacterController : MonoBehaviour
     
         private void HandleGravity()
         {
+            if (_touchingSlimeCeiling)
+            {
+                _frameVelocity.y = 0;
+                print("on slime");
+                return;
+                
+            }
+            
+            
             if (_hitBounce)
             {
                 _frameVelocity.y = Mathf.Abs(_frameVelocity.y) < 0.3f ? 0f : -1.6f*(_frameVelocity.y);
