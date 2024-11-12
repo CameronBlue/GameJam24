@@ -129,10 +129,11 @@ public class MyCharacterController : MonoBehaviour
             //TODO: determine if this is necessary
             if (_customCol.HitCeiling) _frameVelocity.y = Mathf.Min(0, _frameVelocity.y);
             
-            
+            print(_customCol.GroundState);
             // If landed on bounce, then set the y velocity
-            if (groundHit && !_grounded && _customCol.GroundState == 3)
+            if (groundHit && !_grounded && _customCol.GroundState == 2)
             {
+                print("landed on bounce");
                 _grounded = true;
                 _coyoteUsable = true;
                 _bufferedJumpUsable = true;
@@ -264,7 +265,7 @@ public class MyCharacterController : MonoBehaviour
         {
             if (_hitBounce)
             {
-                _frameVelocity.y = _frameVelocity.y > 0.3f ? 0f : -_frameVelocity.y;
+                _frameVelocity.y = Mathf.Abs(_frameVelocity.y) < 0.3f ? 0f : -1.6f*(_frameVelocity.y);
                 _hitBounce = false;
                 return;
             }

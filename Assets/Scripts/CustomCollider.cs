@@ -16,7 +16,7 @@ public class CustomCollider : MonoBehaviour
     
     public bool Colliding => math.any(m_groundedState > 0);
     public bool CollidingHorizontal => math.any(m_groundedState.xz > 0);
-    public bool CanJump => m_groundedState.y == 1;
+    public bool CanJump => m_groundedState.y > 0;
     public bool CanWallJumpLeft => m_groundedState.z == 1;
     public bool CanWallJumpRight => m_groundedState.x == 1;
     public int GroundState => m_groundedState.y;
