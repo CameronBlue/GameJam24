@@ -127,9 +127,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 469521842}
     m_Modifications:
+    - target: {fileID: 3604065902856904914, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
+      propertyPath: m_TargetGraphic
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4825408523733383035, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
+      propertyPath: m_TargetGraphic
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5483570497316726791, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_Name
       value: Potion Combiner
+      objectReference: {fileID: 0}
+    - target: {fileID: 6637433215735801837, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
+      propertyPath: m_TargetGraphic
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8624296930198052261, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
+      propertyPath: m_TargetGraphic
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8882579416616146415, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_Pivot.x
@@ -210,6 +226,14 @@ PrefabInstance:
     - target: {fileID: 8882579416616146415, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9035349437036401348, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
+      propertyPath: m_TargetGraphic
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 9205517523821614205, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
+      propertyPath: m_TargetGraphic
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
