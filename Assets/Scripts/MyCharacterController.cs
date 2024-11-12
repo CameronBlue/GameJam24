@@ -321,7 +321,7 @@ public class MyCharacterController : MonoBehaviour
             
             if (_hitBounce)
             {
-                AudioManager.Play("jump")
+            AudioManager.Play("jump");
                 _frameVelocity.y = Mathf.Abs(_frameVelocity.y) < 0.3f ? 0f : -1.6f*(_frameVelocity.y);
                 _hitBounce = false;
                 _endedJumpEarly = true;
