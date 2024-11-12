@@ -35,7 +35,7 @@ public class MyCharacterController : MonoBehaviour
     
     private void Update()
     {
-        if (_touchingSlimeCeiling && _rb.linearVelocity.x != 0))
+        if (_touchingSlimeCeiling && _rb.linearVelocity.x != 0)
         {
             AudioManager.Play("slime", false);
             AudioManager.Stop("run");
