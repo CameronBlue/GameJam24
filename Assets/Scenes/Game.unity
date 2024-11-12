@@ -127,61 +127,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 469521842}
     m_Modifications:
-    - target: {fileID: 198342106203161587, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 198342106203161587, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 198342106203161587, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 198342106203161587, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 198342106203161587, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 198342106203161587, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 198342106203161587, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 198342106203161587, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5483570497316726791, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_Name
       value: Potion Combiner
-      objectReference: {fileID: 0}
-    - target: {fileID: 5483570497316726791, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6720326269660222690, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_Color.a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6720326269660222690, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_Color.b
-      value: 0.16981131
-      objectReference: {fileID: 0}
-    - target: {fileID: 6720326269660222690, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_Color.g
-      value: 0.16981131
-      objectReference: {fileID: 0}
-    - target: {fileID: 6720326269660222690, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_Color.r
-      value: 0.16981131
       objectReference: {fileID: 0}
     - target: {fileID: 8882579416616146415, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_Pivot.x

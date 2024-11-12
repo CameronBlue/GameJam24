@@ -223,7 +223,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1705342666149230496}
   m_Layer: 5
-  m_Name: Combination Slot (1)
+  m_Name: Combination Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -248,7 +248,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 59.6, y: 89.1}
+  m_AnchoredPosition: {x: 66, y: 0}
   m_SizeDelta: {x: 44.55, y: 44.55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2738168945602018695
@@ -287,7 +287,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 89.09999}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 40.2843, y: 38.3834}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6475251666035529900
@@ -702,13 +702,13 @@ RectTransform:
   - {fileID: 198342106203161587}
   - {fileID: 5427503377768060998}
   - {fileID: 2687115231224962937}
+  - {fileID: 6980882451235398158}
   - {fileID: 6177233051141245136}
   - {fileID: 7650131109002489199}
   - {fileID: 7534006149294844886}
-  - {fileID: 6980882451235398158}
   - {fileID: 2812543553083321007}
-  - {fileID: 1705342666149230496}
   - {fileID: 8040104670649710476}
+  - {fileID: 1705342666149230496}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -774,10 +774,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 8882579416616146415}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0018616, y: 0.0012865}
-  m_SizeDelta: {x: 505.29, y: 271.83}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5262326977783460106
 CanvasRenderer:
@@ -800,7 +800,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3773585, g: 0.3773585, b: 0.3773585, a: 0.72156864}
+  m_Color: {r: 0.16981131, g: 0.16981131, b: 0.16981131, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -902,7 +902,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2812543553083321007}
   m_Layer: 5
-  m_Name: Combination Slot
+  m_Name: Combination Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -927,7 +927,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -57.1, y: 89.1}
+  m_AnchoredPosition: {x: -66, y: 0}
   m_SizeDelta: {x: 44.55, y: 44.55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8294403160609337134
@@ -1136,11 +1136,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0.0018931
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 16.128
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1156,7 +1156,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7483811132890436099, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_Name
-      value: Potion Combiner Slot (1)
+      value: Top Center
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1249,11 +1249,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0.0018979
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -67.1
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1269,7 +1269,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7483811132890436099, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_Name
-      value: Potion Combiner Slot (3)
+      value: Bottom Center
+      objectReference: {fileID: 0}
+    - target: {fileID: 7874421058451753432, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
+      propertyPath: m_Interactable
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1362,11 +1366,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 133.1
+      value: 132
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -67.100006
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1382,7 +1386,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7483811132890436099, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_Name
-      value: Potion Combiner Slot (4)
+      value: Bottom Right
+      objectReference: {fileID: 0}
+    - target: {fileID: 7874421058451753432, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
+      propertyPath: m_Interactable
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1475,11 +1483,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 133.1
+      value: 132
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 16.127995
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1495,7 +1503,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7483811132890436099, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_Name
-      value: Potion Combiner Slot (5)
+      value: Top Right
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1588,11 +1596,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -130.1
+      value: -132
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 16.127995
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1608,7 +1616,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7483811132890436099, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_Name
-      value: Potion Combiner Slot
+      value: Top Left
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1701,11 +1709,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -130.1
+      value: -132
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -62.6
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 3105765934621751360, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1721,7 +1729,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7483811132890436099, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
       propertyPath: m_Name
-      value: Potion Combiner Slot (2)
+      value: Bottom Left
+      objectReference: {fileID: 0}
+    - target: {fileID: 7874421058451753432, guid: 4fcaa5d51c1e5ba4e996f8a4a883ce7e, type: 3}
+      propertyPath: m_Interactable
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
