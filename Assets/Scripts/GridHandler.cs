@@ -607,6 +607,8 @@ public class GridHandler : MonoBehaviour
 
     public void AddIntoGrid(Vector2 _position, Cell _cell)
     {
+        CompleteFluidUpdate();
+        
         var i = GetCell(_position, Mathf.RoundToInt);
         var job = new AddIntoGridJob(m_cells, m_fluidCells, m_cellPropertiesNative, _cell, i.x, i.y, m_levelWidth, m_levelHeight);
         job.Schedule().Complete();

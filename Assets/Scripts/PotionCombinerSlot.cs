@@ -33,4 +33,10 @@ public class PotionCombinerSlot : MonoBehaviour
         slotSelected = !slotSelected;
         backgroundImage.color = slotSelected ? selectedColor : unselectedColor;
     }
+
+    public void Deselect()
+    {
+        slotSelected = false;
+        backgroundImage.color = unselectedColor;
+    }
 }
