@@ -101,12 +101,19 @@ public class PotionCombiner : MonoBehaviour
 
     private void UpdateSlotNumbers()
     {
-        acidSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.ACID_INV_REF];
-        fireSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.FIRE_INV_REF];
-        platSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.PLAT_INV_REF];
-        gasSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.GAS_INV_REF];
-        slimeSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.SLIME_INV_REF];
-        bounceSlot.slotNumber = PlayerInventory.Me.potionQuantities[PlayerInventory.BOUNCE_INV_REF];
+        var acidQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.ACID_INV_REF]}";
+        var fireQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.FIRE_INV_REF]}";
+        var platQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.PLAT_INV_REF]}";
+        var gasQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.GAS_INV_REF]}";
+        var slimeQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.SLIME_INV_REF]}";
+        var bounceQuantityText = $"{PlayerInventory.Me.potionQuantities[PlayerInventory.BOUNCE_INV_REF]}";
+        
+        acidSlot.SetQuantityText(acidQuantityText);
+        fireSlot.SetQuantityText(fireQuantityText);
+        platSlot.SetQuantityText(platQuantityText);
+        gasSlot.SetQuantityText(gasQuantityText);
+        slimeSlot.SetQuantityText(slimeQuantityText);
+        bounceSlot.SetQuantityText(bounceQuantityText);
     }
     
     private int CombinePotions()

@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class PotionCombinerSlot : MonoBehaviour
 {
-    [NonSerialized] public int slotNumber;
     [NonSerialized] public bool slotSelected;
     
     [SerializeField] private Color selectedColor;
@@ -24,9 +23,9 @@ public class PotionCombinerSlot : MonoBehaviour
         slotTypeImage.sprite = _sprite;
     }
 
-    void Update()
+    public void SetQuantityText(string _text)
     {
-        slotTypeText.text = slotNumber.ToString();
+        slotTypeText.text = _text;
     }
 
     public void onButtonPressed()

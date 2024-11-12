@@ -61,7 +61,7 @@ public class Character : MonoBehaviour
     {
         var xVel = m_rb.linearVelocity.x;
         m_sr.flipX = xVel < 0.1f;
-        var speed = Mathf.Abs(xVel);
+        var speed = Mathf.Abs(xVel) * 0.2f;
         m_anim.SetFloat("Speed", speed);
         m_anim.SetBool("Moving", speed > 0.1f);
     }

@@ -99,6 +99,8 @@ public class GridHandler : MonoBehaviour
         public float flammability;
         [Tooltip("How likely a tile is to be exploded")]
         public float explodability;
+        [Tooltip("How likely a tile is to decay each frame")]
+        public float decayRate;
         [Tooltip("Whether this liquid solidifies on contact with solid blocks")]
         public bool crystallisable;
     }
@@ -275,11 +277,6 @@ public class GridHandler : MonoBehaviour
         var job = new RenderJob(m_cells, m_cellPropertiesNative, m_levelWidth, m_levelHeight);
         job.Schedule(m_levelWidth * m_levelHeight, 64).Complete();
         job.SetTexture(m_textureHolder);
-    }
-
-    public byte[] GetTextureData()
-    {
-        return m_textureHolder.EncodeToPNG();
     }
 
     [BurstCompile]
@@ -691,10 +688,70 @@ public class GridHandler : MonoBehaviour
         }
     }
     
+    public void Explode(Vector2 _position, int _radius)
+    {
+        CompleteFluidUpdate();
+        
+        var i = GetCell(_position, Mathf.RoundToInt);
+        var job = new ExplodeJob(m_cells, m_fluidCells, m_cellPropertiesNative, i, m_levelWidth, m_levelHeight, _radius);
+        job.Schedule().Complete();
+    }
+
+    [BurstCompile]
+    private struct ExplodeJob : IJob
+    {
+        private NativeArray<Cell> m_cells;
+        private NativeHashSet<int2> m_fluidCells;
+        [ReadOnly] private NativeArray<CellProperties> m_cellProperties;
+        [ReadOnly] private int2 m_epicenter;
+        [ReadOnly] private int2 m_levelSize;
+        [ReadOnly] private int m_radius;
+        [ReadOnly] private Random m_random;
+        
+        public ExplodeJob(NativeArray<Cell> _cells, NativeHashSet<int2> _fluidCells, NativeArray<CellProperties> _properties, int2 _epicenter, int _width, int _height, int _radius)
+        {
+            m_cells = _cells;
+            m_fluidCells = _fluidCells;
+            m_cellProperties = _properties;
+            m_epicenter = _epicenter;
+            m_levelSize = new(_width, _height);
+            m_radius = _radius;
+            m_random = new Random((uint)UnityEngine.Random.Range(0, uint.MaxValue));
+        }
+        
+        public void Execute()
+        {
+            var min = math.max(0, m_epicenter - m_radius);
+            var max = math.min(m_epicenter + m_radius, m_levelSize);
+
+            for (int x = min.x; x < max.x; ++x)
+            {
+                for (int y = min.y; y < max.y; ++y)
+                {
+                    ref Cell cell = ref m_cells.RefAt(x + y * m_levelSize.x);
+                    if (cell.IsFluid(m_cellProperties, true) || m_cellProperties[(int)cell.m_type].explodability <= 0f)
+                        continue;
+                    
+                    var sqrDist = math.lengthsq(m_epicenter - new int2(x, y)) + 1;
+                    var fractionAway = sqrDist / (m_radius * m_radius);
+                    if (fractionAway > 1f)
+                        continue;
+                    
+                    if (m_random.NextFloat(0f, 1f) > 5 * (1 - fractionAway)) 
+                        continue;
+                    
+                    cell.m_type = Cell.Type.Gas;
+                    cell.m_amount *= 5f;
+                    cell.m_crystallised = false;
+                    m_fluidCells.Add(new(x, y));
+                }
+            }
+        }
+    }
+    
     public void UpdateFluids()
     {
         var job = new UpdateFluidsJob(m_cells, m_cellPropertiesNative, m_fluidCells, m_levelWidth, m_levelHeight);
-        //job.Execute();
         fluidUpdateJob = job.Schedule();
         fluidUpdateOngoing = true;
     }
@@ -828,8 +885,12 @@ public class GridHandler : MonoBehaviour
 
         private void UpdateDecay(ref Cell _cell)
         {
+            var decayRate = m_cellProperties[(int)_cell.m_type].decayRate;
+            if (decayRate <= 0f)
+                return;
+            
             var rand = m_random.NextFloat(0f, 1f);
-            if (_cell.IsType(Cell.Type.Smoke) && rand > 0.995f)
+            if (rand < decayRate)
                 _cell.Clear();
         }
         

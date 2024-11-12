@@ -60,6 +60,13 @@ public class Potion : MonoBehaviour
 
     private void Shatter()
     {
+        if (m_type == GridHandler.Cell.Type.Gas)
+        {
+            AudioManager.PlayAtPoint("explosion", transform.position);
+            GridHandler.Me.Explode(transform.position, 50);
+            return;
+        }
+        
         AudioManager.PlayAtPoint("shatter", transform.position);
         var inertia = _prevVelocity;
         for (int i = 0; i < m_capacity; ++i)
