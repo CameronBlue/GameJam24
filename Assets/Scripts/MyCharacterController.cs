@@ -235,12 +235,20 @@ public class MyCharacterController : MonoBehaviour
 
         private void ExecuteJump()
         {
+            
+            
             AudioManager.Play("jump");
             _endedJumpEarly = false;
             _timeJumpWasPressed = 0;
             _bufferedJumpUsable = false;
             _coyoteUsable = false;
-            _frameVelocity.y = _stats.JumpPower;
+            
+            //prevent you from jumping
+            if (!_hitBounce)
+            {
+                 _frameVelocity.y = _stats.JumpPower;
+            }
+            //_frameVelocity.y = _stats.JumpPower;
             Jumped?.Invoke();
         }
 
@@ -273,6 +281,7 @@ public class MyCharacterController : MonoBehaviour
             {
                 _frameVelocity.y = Mathf.Abs(_frameVelocity.y) < 0.3f ? 0f : -1.6f*(_frameVelocity.y);
                 _hitBounce = false;
+                _endedJumpEarly = true;
                 return;
             }
             

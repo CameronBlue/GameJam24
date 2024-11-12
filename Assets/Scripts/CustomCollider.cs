@@ -22,7 +22,7 @@ public class CustomCollider : MonoBehaviour
     public int GroundState => m_groundedState.y;
     public int LeftWallState => m_groundedState.x;
     public int RightWallState => m_groundedState.z;
-    
+    public int CeilingState => m_groundedState.w;
     public bool HitCeiling => m_groundedState.w > 0;
     
     private void Start()
