@@ -34,11 +34,13 @@ public class PotionCombiner : MonoBehaviour
 
     private void OnEnable()
     {
+        Manager.Me.m_inMenu = true;
         Time.timeScale = 0f;
     }
 
     private void OnDisable()
     {
+        Manager.Me.m_inMenu = false;
         Time.timeScale = 1f;
     }
 
@@ -109,9 +111,11 @@ public class PotionCombiner : MonoBehaviour
         {
             if (ResultType == -1)
                 return;
-            PlayerInventory.Me.potionQuantities[ingredient1contents] -= 1;
-            PlayerInventory.Me.potionQuantities[ingredient2contents] -= 1;
-            PlayerInventory.Me.potionQuantities[ResultType] += 1;
+            
+            PlayerInventory.Me.AddPotion(PlayerInventory.Me.inventoryTypeReference[ResultType]);
+            PlayerInventory.Me.RemovePotion(PlayerInventory.Me.inventoryTypeReference[ingredient1contents]);
+            PlayerInventory.Me.RemovePotion(PlayerInventory.Me.inventoryTypeReference[ingredient2contents]);
+            
             acidSlot.Deselect();
             fireSlot.Deselect();
             bounceSlot.Deselect();

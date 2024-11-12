@@ -77,6 +77,12 @@ public class PotionSlotManager : MonoBehaviour
         UpdateSelection();
     }
     
+    public void PotionTypeAdded(int _type)
+    {
+        currentPotionSlots.Add(potionSlots[_type]);
+        UpdateSelection();
+    }
+    
     private void UpdateSelection()
     {
         if (currentPotionSlots.Count == 0)

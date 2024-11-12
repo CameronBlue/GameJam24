@@ -49,4 +49,12 @@ public class PlayerInventory : MonoBehaviour
             PotionSlotManager.Me.PotionTypeFinished(type);
         typeQuantities[type] = quantity;
     }
+    
+    public void AddPotion(GridHandler.Cell.Type type)
+    {
+        var quantity = typeQuantities[type];
+        if (++quantity == 1)
+            PotionSlotManager.Me.PotionTypeAdded(Array.IndexOf(inventoryTypeReference, type));
+        typeQuantities[type] = quantity;
+    }
 }

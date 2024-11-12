@@ -23,6 +23,8 @@ public class Manager : MonoBehaviour
 
     [NonSerialized]
     public float m_lastExplosionTime = -1f;
+
+    [NonSerialized] public bool m_inMenu;
     
     private void Awake()
     {
