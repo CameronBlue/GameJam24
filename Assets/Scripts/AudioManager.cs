@@ -19,10 +19,11 @@ public class AudioManager : MonoBehaviour
             s.source.clip = s.clip;
             s.source.volume = s.volume;
             s.source.pitch = s.pitch;
+            s.source.loop = s.loop;
         }
     }
 
-    public static void Play (string name)
+    public static void Play (string name, bool reset=false)
     {
         Sound s = Me.m_sounds.Find(sound => sound.name == name);
         if (s==null)
@@ -35,7 +36,28 @@ public class AudioManager : MonoBehaviour
             Debug.LogWarning("Sound: " + name + " has no audio");
             return;
         }
-        s.source.Play();
+
+        if (!s.source.isPlaying||!reset)
+        {
+           s.source.Play();
+        }
+       
+    }
+
+    public static void Stop(string name)
+    {
+        Sound s = Me.m_sounds.Find(sound => sound.name == name);
+        if (s == null)
+        {
+            Debug.LogWarning("Sound: " + name + " not found");
+            return;
+        }
+        if (s.source.clip == null)
+        {
+            Debug.LogWarning("Sound: " + name + " has no audio");
+            return;
+        }
+        s.source.Stop();
     }
 
     public static void PlayAtPoint (string name, Vector2 point)

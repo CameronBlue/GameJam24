@@ -97,6 +97,7 @@ public class PotionCombiner : MonoBehaviour
             PlayerInventory.Me.potionQuantities[resultContents] += 1;
         }
         UpdateSlotNumbers();
+        PotionSlotManager.Me.StartMe();
     }
 
     private void UpdateSlotNumbers()
