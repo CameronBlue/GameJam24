@@ -16,7 +16,6 @@ public class Manager : MonoBehaviour
     public static Manager Me;
     
     public RawImage m_background;
-    public Transform m_fluidPixelHolder;
     
     private List<CustomCollider> m_colliderUpdateList = new();
     private List<(Vector2, GridHandler.Cell)> m_addIntoGridList = new();

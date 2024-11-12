@@ -112,9 +112,9 @@ public class PotionCombiner : MonoBehaviour
             if (ResultType == -1)
                 return;
             
-            PlayerInventory.Me.AddPotion(PlayerInventory.Me.inventoryTypeReference[ResultType]);
             PlayerInventory.Me.RemovePotion(PlayerInventory.Me.inventoryTypeReference[ingredient1contents]);
             PlayerInventory.Me.RemovePotion(PlayerInventory.Me.inventoryTypeReference[ingredient2contents]);
+            PlayerInventory.Me.AddPotion(PlayerInventory.Me.inventoryTypeReference[ResultType]);
             
             acidSlot.Deselect();
             fireSlot.Deselect();
