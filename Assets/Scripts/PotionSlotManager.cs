@@ -53,11 +53,13 @@ public class PotionSlotManager : MonoBehaviour
         bool changed = false;
         if (Input.GetKeyDown(KeyCode.Q))
         {
+            AudioManager.Play("ding");
             currentSelection++;
             changed = true;
         }
         else if (Input.GetKeyDown(KeyCode.E))
         {
+            AudioManager.Play("ding");
             currentSelection--;
             changed = true;
         }

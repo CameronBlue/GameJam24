@@ -13,6 +13,9 @@ public class AudioManager : MonoBehaviour
     private void Awake()
     {
         Me = this;
+
+        DontDestroyOnLoad(gameObject);
+
         foreach (Sound s in m_sounds)
         {
             s.source = gameObject.AddComponent<AudioSource>();
@@ -23,7 +26,15 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public static void Play (string name, bool reset=false)
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Play("ding");
+        }
+    }
+
+    public static void Play (string name, bool reset=true)
     {
         Sound s = Me.m_sounds.Find(sound => sound.name == name);
         if (s==null)
@@ -37,7 +48,7 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        if (!s.source.isPlaying||!reset)
+        if (!s.source.isPlaying||reset)
         {
            s.source.Play();
         }
