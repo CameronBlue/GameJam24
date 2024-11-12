@@ -112,6 +112,9 @@ public class PotionCombiner : MonoBehaviour
             PlayerInventory.Me.potionQuantities[ingredient1contents] -= 1;
             PlayerInventory.Me.potionQuantities[ingredient2contents] -= 1;
             PlayerInventory.Me.potionQuantities[ResultType] += 1;
+            acidSlot.Deselect();
+            fireSlot.Deselect();
+            bounceSlot.Deselect();
         }
         PotionSlotManager.Me.StartMe();
     }

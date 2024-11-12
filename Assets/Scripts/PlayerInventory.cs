@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
@@ -26,6 +27,8 @@ public class PlayerInventory : MonoBehaviour
     };
 
     public int[] potionQuantities;
+
+    public Dictionary<GridHandler.Cell.Type, int> typeQuantities = new();
     
     private void Awake()
     {
@@ -34,20 +37,16 @@ public class PlayerInventory : MonoBehaviour
 
     public void StartMe()
     {
-        int[] starter = SaveManager.Me == null ? (new []{ 1, 1, 1, 1, 1, 1 }) : SaveManager.Me.GetLevelPotions();
-        InitInventory(starter);
-    }
-
-    public void InitInventory(int[] starterQuantities)
-    {
-        potionQuantities = starterQuantities;
+        potionQuantities = SaveManager.Me == null ? new []{ 9, 9, 9, 9, 9, 9 } : SaveManager.Me.GetLevelPotions();
+        for (int i = 0; i < inventoryTypeReference.Length; ++i)
+            typeQuantities.Add(inventoryTypeReference[i], potionQuantities[i]);
     }
 
     public void RemovePotion(GridHandler.Cell.Type type)
     {
-        var slot = Array.FindIndex(inventoryTypeReference, x => x == type);
-        potionQuantities[slot]--;
-        if (potionQuantities[slot] == 0)
+        var quantity = typeQuantities[type];
+        if (--quantity == 0)
             PotionSlotManager.Me.PotionTypeFinished(type);
+        typeQuantities[type] = quantity;
     }
 }

@@ -8,7 +8,6 @@ public class Potion : MonoBehaviour
     private const float c_shortBoundRadius = 0.2f;
     private const float c_longBoundRadius = 1.5f;
     
-    [SerializeField] private FluidPixel m_fluidPixelPrefab;
     [SerializeField] private CustomCollider m_customColl;
     [SerializeField] private CustomBounds m_bounds;
     [SerializeField] private Rigidbody2D m_rb;
@@ -42,6 +41,16 @@ public class Potion : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (m_customColl.Colliding && m_customColl.GroundState == 2 || m_customColl.CeilingState == 2)
+        {
+            m_rb.linearVelocity = new Vector2(_prevVelocity.x, -_prevVelocity.y);
+            return;
+        }
+        if (m_customColl.Colliding && m_customColl.RightWallState == 2 || m_customColl.LeftWallState == 2)
+        {
+            m_rb.linearVelocity = new Vector2(-_prevVelocity.x, _prevVelocity.y);
+            return;
+        }
         if (m_customColl.Colliding)
         {
             if (m_potionStyle != 0)
@@ -69,12 +78,10 @@ public class Potion : MonoBehaviour
         }
         
         AudioManager.PlayAtPoint("shatter", transform.position);
-        var inertia = _prevVelocity;
         for (int i = 0; i < m_capacity; ++i)
         {
             var pos = Utility.RandomInsideBounds(m_bounds, Manager.c_CellRadius);
-            var fluidPixel = Instantiate(m_fluidPixelPrefab, pos, Quaternion.identity, Manager.Me.m_fluidPixelHolder);
-            fluidPixel.Init(m_type, 1f, new Vector2(inertia.x * Random.Range(0.98f, 1.02f), inertia.y * Random.Range(0.98f, 1.02f)));
+            GridHandler.Me.AddIntoGrid(pos, new GridHandler.Cell { m_type = m_type, m_amount = 1f });
         }
     }
 }

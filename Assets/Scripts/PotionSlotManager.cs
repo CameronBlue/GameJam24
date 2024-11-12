@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -14,14 +15,16 @@ public class PotionSlotManager : MonoBehaviour
     {
         public Sprite largeSprite;
         public Sprite smallSprite;
-        [FormerlySerializedAs("m_type")] public GridHandler.Cell.Type type;
+        public GridHandler.Cell.Type type;
     }
     [SerializeField] private PotionSlot[] potionSlots;
     
     [SerializeField] private Image largeImage;
+    [SerializeField] private TextMeshProUGUI quantityText;
     [SerializeField] private Image smallImageLeft;
     [SerializeField] private Image smallImageRight;
     [SerializeField] private List<PotionSlot> currentPotionSlots;
+    
     private int currentSelection = 0;
     public bool CanCombine => currentPotionSlots.Count > 1;
 
@@ -45,6 +48,8 @@ public class PotionSlotManager : MonoBehaviour
 
     void Update()
     {
+        quantityText.text = $"x{PlayerInventory.Me.typeQuantities[currentPotionSlots[currentSelection].type]}";
+        
         bool changed = false;
         if (Input.GetKeyDown(KeyCode.Q))
         {
@@ -80,8 +85,10 @@ public class PotionSlotManager : MonoBehaviour
         }
         
         currentSelection = Mod(currentSelection);
-        Character.Me.m_potionType = currentPotionSlots[currentSelection].type;
+        var currentPotion = currentPotionSlots[currentSelection];
+        Character.Me.m_potionType = currentPotion.type;
         largeImage.sprite = currentPotionSlots[currentSelection].largeSprite;
+        quantityText.text = $"x{PlayerInventory.Me.typeQuantities[currentPotion.type]}";
         
         if (currentPotionSlots.Count <= 1)
         {
