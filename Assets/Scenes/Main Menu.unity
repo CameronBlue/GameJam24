@@ -776,7 +776,11 @@ MonoBehaviour:
     m_final: 0
   - m_name: Bounce Tutorial
     m_data: {fileID: 2800000, guid: b231fb81e6f114c46851da2edf388f0e, type: 3}
-    m_potions: 000000000000000000000000010000000000000000000000
+    m_potions: 000000000000000001000000010000000000000000000000
+    m_final: 0
+  - m_name: Slime Test
+    m_data: {fileID: 2800000, guid: 2d0cef74db74a2e4883b6381127c6f3d, type: 3}
+    m_potions: 010000000100000001000000010000000100000001000000
     m_final: 0
 --- !u!4 &876468077
 Transform:
