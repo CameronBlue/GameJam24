@@ -127,7 +127,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 469521842}
     m_Modifications:
-<<<<<<< Updated upstream
     - target: {fileID: 198342106203161587, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_AnchorMax.x
       value: 1
@@ -159,35 +158,6 @@ PrefabInstance:
     - target: {fileID: 198342106203161587, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
-=======
-    - target: {fileID: 4049885189771938574, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4049885189771938574, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4049885189771938574, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4049885189771938574, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4049885189771938574, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: Stop
-      objectReference: {fileID: 0}
-    - target: {fileID: 4049885189771938574, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: AudioManager, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 4049885189771938574, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
->>>>>>> Stashed changes
       objectReference: {fileID: 0}
     - target: {fileID: 5483570497316726791, guid: 585fe2791944c2441bccbf9f55061cbe, type: 3}
       propertyPath: m_Name
@@ -1502,7 +1472,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1952815453}
   m_CullTransparentMesh: 1
-<<<<<<< Updated upstream
 --- !u!1 &1975549518
 GameObject:
   m_ObjectHideFlags: 0
@@ -1553,8 +1522,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-=======
->>>>>>> Stashed changes
 --- !u!222 &363810213180241518
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2194,6 +2161,7 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1975549520}
   - {fileID: 87336036}
   - {fileID: 1799069818}
   - {fileID: 863852557}
