@@ -68,7 +68,7 @@ public class Manager : MonoBehaviour
     private void Clicked()
     {
         if (!IsPointerOverUIElement())
-            Character.Me.UpdateGun();
+            Character.Me.UpdateThrow();
     }
     
     private bool IsPointerOverUIElement()

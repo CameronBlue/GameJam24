@@ -50,7 +50,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e72cf1d04adeca24e994344d28de21da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fluidPixelPrefab: {fileID: 9201683472301224692, guid: 35914da8dac885b42ab1cb9b5dd79888, type: 3}
   m_customColl: {fileID: 2101680091732044099}
   m_bounds: {fileID: 8647496898752494134}
   m_rb: {fileID: 6457517956229087928}
@@ -71,7 +70,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0
-  m_GravityScale: 1
+  m_GravityScale: 3
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
