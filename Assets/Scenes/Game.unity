@@ -1690,15 +1690,21 @@ MonoBehaviour:
     source: {fileID: 0}
   - name: jump
     clip: {fileID: 8300000, guid: e3b8b2d360b39564db22ca872ebcb389, type: 3}
-    volume: 0.3
+    volume: 0.1
     pitch: 1
     loop: 0
     source: {fileID: 0}
   - name: run
     clip: {fileID: 8300000, guid: b4ac918dfe29fea42b4291c2285fcadc, type: 3}
-    volume: 0.3
+    volume: 0.1
     pitch: 1
     loop: 1
+    source: {fileID: 0}
+  - name: explosion
+    clip: {fileID: 8300000, guid: 628ec1a267f0bd9409020cd4bd5e8b22, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
     source: {fileID: 0}
 --- !u!4 &1975549520
 Transform:
