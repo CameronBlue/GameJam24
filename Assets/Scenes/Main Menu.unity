@@ -383,7 +383,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1415684167394727453, guid: ade4ad1b179f93e4ea28115f4309e910, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1716972742354194925, guid: ade4ad1b179f93e4ea28115f4309e910, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -1093,6 +1093,10 @@ MonoBehaviour:
     m_data: {fileID: 2800000, guid: 2d0cef74db74a2e4883b6381127c6f3d, type: 3}
     m_potions: 000000000000000001000000010000000000000000000000
     m_final: 0
+  - m_name: Gas Test
+    m_data: {fileID: 2800000, guid: 2c65f5d72428d56439694dcf9ef288bc, type: 3}
+    m_potions: 010000000000000001000000000000000000000000000000
+    m_final: 1
 --- !u!4 &876468077
 Transform:
   m_ObjectHideFlags: 0

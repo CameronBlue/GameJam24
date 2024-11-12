@@ -73,7 +73,7 @@ public class Potion : MonoBehaviour
         {
             AudioManager.PlayAtPoint("explosion", transform.position);
             Manager.Me.m_lastExplosionTime = Time.time;
-            GridHandler.Me.Explode(transform.position, 50);
+            GridHandler.Me.Explode(transform.position, 75);
             return;
         }
         
