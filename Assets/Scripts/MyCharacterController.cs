@@ -1,4 +1,5 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 
 public class MyCharacterController : MonoBehaviour
@@ -84,7 +85,7 @@ public class MyCharacterController : MonoBehaviour
         //HandleWallJump();
         HandleDirection();
         HandleGravity();
-        HandleWallBounce();
+        HandleWallClimbing();
             
         ApplyMovement();
     }
@@ -98,6 +99,8 @@ public class MyCharacterController : MonoBehaviour
 
         private bool _touchingSlimeCeiling;
         private bool _touchingSlimeWall;
+
+        private bool _touchingSlime;
 
         private void CheckCollisions()
         {
@@ -113,8 +116,8 @@ public class MyCharacterController : MonoBehaviour
             
             
             
-            // Hit a wall
-            /*old
+            // Hit a wall (Old)
+            /*
             // if (Physics2D.CapsuleCast(_col.bounds.center, _col.size, _col.direction, 0, Vector2.left, _stats.GrounderDistance, ~_stats.PlayerLayer)) {
             //     _wallJumpDirection = 1;
             // } else if (Physics2D.CapsuleCast(_col.bounds.center, _col.size, _col.direction, 0, Vector2.right, _stats.GrounderDistance, ~_stats.PlayerLayer)) {
@@ -123,21 +126,21 @@ public class MyCharacterController : MonoBehaviour
             //     _wallJumpDirection = 0;
              }*/
             
-            //new
+            //Hit a Wall (new)
             if (_customCol.CanWallJumpRight)
             {
                 _wallJumpDirection = 1;
-                if (_customCol.RightWallState == 2)
+                if (_customCol.RightWallState == 3)
                 {
-                    leftWallBounce = true;
+                    _isWallClimbing = true;
                 }
             } 
             else if (_customCol.CanWallJumpLeft)
             {
                 _wallJumpDirection = -1;
-                if (_customCol.LeftWallState == 2)
+                if (_customCol.LeftWallState == 3)
                 {
-                    leftWallBounce = true;
+                    _isWallClimbing = true;
                 }
             }
             else
@@ -159,15 +162,21 @@ public class MyCharacterController : MonoBehaviour
                 _endedJumpEarly = true;
             }
             
-            //Left Slime
+            //Left Slime Ceiling
             if (_customCol.CeilingState != 3 && _touchingSlimeCeiling)
             {
                 _touchingSlimeCeiling = false;
                 m_sr.flipY = false;
             }
             
+            //Left Slime Wall
+            if (_isWallClimbing && _customCol.LeftWallState != 3 && _customCol.RightWallState != 3)
+            {
+                _isWallClimbing = false;
+            }
             
-            
+            //Touching slime (any side)
+            _touchingSlime = _customCol.HitSlime;
             
             // Landed on bounce
             if (groundHit && !_grounded && _customCol.GroundState == 2)
@@ -207,13 +216,16 @@ public class MyCharacterController : MonoBehaviour
                 WallSlideChanged?.Invoke(false, _wallJumpDirection);
             }
 
-            // Reset dash and wall jump if grounded 
+            // Reset wall jump if grounded 
             if (_grounded) {_wallJumpToConsume = true;}
 
             Physics2D.queriesStartInColliders = _cachedQueryStartInColliders;
         }
 
     #endregion
+    
+    
+    
     
     #region Jumping
 
@@ -246,6 +258,14 @@ public class MyCharacterController : MonoBehaviour
                 m_sr.flipY = false;
                 return;
             }
+
+            if (_isWallClimbing)
+            {
+                _frameVelocity.x = _wallJumpDirection * 2f;
+                _isWallClimbing = false;
+                return;
+            }
+            
 
             if (_grounded || CanUseCoyote) ExecuteJump();
 
@@ -286,7 +306,7 @@ public class MyCharacterController : MonoBehaviour
             //prevent you from jumping
             if (!_hitBounce)
             {
-                 _frameVelocity.y = _stats.JumpPower;
+                 _frameVelocity.y = _stats.JumpPower / (_touchingSlime ? _stats.SlimeJumpModifier : 1);
             }
             //_frameVelocity.y = _stats.JumpPower;
             Jumped?.Invoke();
@@ -298,6 +318,8 @@ public class MyCharacterController : MonoBehaviour
 
         private void HandleDirection()
         {
+            if (_isWallClimbing && !_touchingSlimeCeiling && !_grounded) return;
+            
             if (_frameInput.Move.x == 0)
             {
                 var deceleration = _grounded ? _stats.GroundDeceleration : _stats.AirDeceleration;
@@ -305,7 +327,7 @@ public class MyCharacterController : MonoBehaviour
             }
             else
             {
-                _frameVelocity.x = Mathf.MoveTowards(_frameVelocity.x, _frameInput.Move.x * _stats.MaxSpeed, _stats.Acceleration * Time.fixedDeltaTime);
+                _frameVelocity.x = Mathf.MoveTowards(_frameVelocity.x, _frameInput.Move.x * _stats.MaxSpeed / (_touchingSlime ? _stats.SlimeDecelerationModifier : 1), _stats.Acceleration * Time.fixedDeltaTime);
             }
         }
 
@@ -317,6 +339,7 @@ public class MyCharacterController : MonoBehaviour
     
         private void HandleGravity()
         {
+            if (_isWallClimbing) return;
             if (_touchingSlimeCeiling)
             {
                 _frameVelocity.y = 0;
@@ -347,20 +370,22 @@ public class MyCharacterController : MonoBehaviour
 
     #endregion
     
-    #region WallBounce
+    #region WallClimbing
 
-    private bool leftWallBounce;
-    private bool rightWallBounce;
-    
-    private void HandleWallBounce()
+    private bool _isWallClimbing;
+
+    private void HandleWallClimbing()
     {
-        if (leftWallBounce || rightWallBounce)
+        if (_isWallClimbing)
         {
-            _frameVelocity.x = Mathf.Abs(_frameVelocity.x) < 0.3f ? 0f : -1.6f*_frameVelocity.x;
-        } ;
+            _frameVelocity.y = Mathf.MoveTowards(_frameVelocity.y, _frameInput.Move.y * _stats.MaxSpeed / (_touchingSlime ? _stats.SlimeDecelerationModifier : 1), _stats.Acceleration * Time.fixedDeltaTime);   
+        }
     }
     
+    
     #endregion
+    
+    
 
     private void ApplyMovement()
     {

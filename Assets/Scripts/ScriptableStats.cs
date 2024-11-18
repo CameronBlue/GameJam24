@@ -26,6 +26,12 @@ public class ScriptableStats : ScriptableObject
     
     [Tooltip("The pace at which the player comes to a stop")]
     public float GroundDeceleration = 60;
+
+    [Tooltip("The maximum speed decrease (it is divided by this value) applied when the player is on slime (wall, ceiling or floor)")]
+    public float SlimeDecelerationModifier = 3;
+
+    [Tooltip("The decrease to a player's jump force (it is divided by this value applied when the player is on slime")]
+    public float SlimeJumpModifier = 3;
     
     [Tooltip("Deceleration in air only after stopping input mid-air")]
     public float AirDeceleration = 30;

@@ -17,13 +17,15 @@ public class CustomCollider : MonoBehaviour
     public bool Colliding => math.any(m_groundedState > 0);
     public bool CollidingHorizontal => math.any(m_groundedState.xz > 0);
     public bool CanJump => m_groundedState.y > 0;
-    public bool CanWallJumpLeft => m_groundedState.z == 1;
-    public bool CanWallJumpRight => m_groundedState.x == 1;
+    public bool CanWallJumpLeft => m_groundedState.z > 0;
+    public bool CanWallJumpRight => m_groundedState.x > 0;
     public int GroundState => m_groundedState.y;
-    public int LeftWallState => m_groundedState.x;
-    public int RightWallState => m_groundedState.z;
+    public int LeftWallState => m_groundedState.z;
+    public int RightWallState => m_groundedState.x;
     public int CeilingState => m_groundedState.w;
     public bool HitCeiling => m_groundedState.w > 0;
+
+    public bool HitSlime => math.any(m_groundedState == 3);
     
     private void Start()
     {

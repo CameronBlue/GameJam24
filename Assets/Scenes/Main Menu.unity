@@ -1207,7 +1207,7 @@ MonoBehaviour:
     m_final: 0
   - m_name: Slime Test
     m_data: {fileID: 2800000, guid: 2d0cef74db74a2e4883b6381127c6f3d, type: 3}
-    m_potions: 000000000000000001000000010000000000000000000000
+    m_potions: 000000000000000004000000040000000000000000000000
     m_final: 0
   - m_name: Gas Test
     m_data: {fileID: 2800000, guid: 2c65f5d72428d56439694dcf9ef288bc, type: 3}
