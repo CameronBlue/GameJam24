@@ -1217,6 +1217,10 @@ MonoBehaviour:
     m_data: {fileID: 2800000, guid: a9f077b6f07f06143a77e8076528b716, type: 3}
     m_potions: 020000000000000000000000010000000000000000000000
     m_final: 0
+  - m_name: Potion Bounce Tutorial
+    m_data: {fileID: 2800000, guid: 6fd7200cca2aa244fb5784599511ff0a, type: 3}
+    m_potions: 010000000000000000000000010000000000000000000000
+    m_final: 0
 --- !u!4 &876468077
 Transform:
   m_ObjectHideFlags: 0
